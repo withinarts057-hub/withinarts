@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/components/*": ["components/*"],
+      "@/blocks/*": ["blocks/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/*": ["src/*"]
+    },
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "src/**/*",
+    "components/**/*",
+    "blocks/**/*"
+  ]
+}
