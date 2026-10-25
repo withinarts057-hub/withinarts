@@ -1,3 +1,5 @@
+import { resolveAssetUrl } from '@/lib/utils';
+
 export const DEFAULT_STUDIO_INFO = {
   name: "Withinart",
   tagline: "Handcrafted Luxury Oil Paintings & Bespoke Islamic Fine Art",
@@ -19,7 +21,7 @@ export const DEFAULT_STORY_STEPS = [
     description:
       "We are proud artisans from Faisalabad with our flagship atelier located in D-Ground. We craft and showcase 100% original handmade paintings, where every canvas is meticulously painted by our resident master artists.",
     woodName: "Artisan Heritage Canvas",
-    image: "/images/faisalabad_art_studio.jpg",
+    image: resolveAssetUrl("/images/faisalabad_art_studio.jpg"),
     badge: "Origin Studio",
     link: "https://maps.google.com/?q=Faisalabad+Pakistan"
   },
@@ -32,7 +34,7 @@ export const DEFAULT_STORY_STEPS = [
     description:
       "A painting's foundation begins with solid timber. Our stretcher frames are handcrafted by Faisalabad's master carpenters using genuine seasoned Sheesham (rosewood) and kiln-dried Pine, ensuring your artwork remains perfectly flat and warp-free for decades on your wall.",
     woodName: "Seasoned Shisham (Rosewood) & Chinar Pine",
-    image: "/images/wood_frame_craft.jpg",
+    image: resolveAssetUrl("/images/wood_frame_craft.jpg"),
     badge: "Solid Hardwood",
     link: "#wood-craft"
   },
@@ -45,7 +47,7 @@ export const DEFAULT_STORY_STEPS = [
     description:
       "Over our robust seasoned wood frames, pure linen canvas is stretched and layered with natural bristle brushes and sculptured palette knives. Each piece features rich 3D impasto textures, pure pigments, and exquisite 24K gold foil detailing.",
     woodName: "Palette Knife & Natural Sable Brush Strokes",
-    image: "/images/brush_painting_action.jpg",
+    image: resolveAssetUrl("/images/brush_painting_action.jpg"),
     badge: "100% Hand-Painted",
     link: "#brushwork"
   },
@@ -58,7 +60,7 @@ export const DEFAULT_STORY_STEPS = [
     description:
       "Rather than using plastic and synthetic wraps, we wrap every artwork in premium eco-friendly jute burlap fabric, accented with a traditional red wax seal, wooden corner guards, and an official Certificate of Authenticity.",
     woodName: "Organic Jute Burlap with Wax Seal & Corner Guards",
-    image: "/images/jute_packaging_craft.jpg",
+    image: resolveAssetUrl("/images/jute_packaging_craft.jpg"),
     badge: "Eco Jute Wrap",
     link: "#jute-pack"
   }
@@ -75,8 +77,8 @@ export const DEFAULT_PAINTINGS = [
     pricePKR: 2500,
     priceUSD: 9,
     badge: "Popular",
-    wallImage: "/images/madina_wall.jpg",
-    closeupImage: "/images/madina.png",
+    wallImage: resolveAssetUrl("/images/madina_wall.jpg"),
+    closeupImage: resolveAssetUrl("/images/madina.png"),
     description:
       "Hand-painted sacred portrait of the Green Dome (Roza-e-Rasool ﷺ) and minaret of Masjid an-Nabawi under glowing moonlight on genuine rustic tree wood slice. Includes transparent display stand and hanging jute cord.",
     inStock: true,
@@ -92,8 +94,8 @@ export const DEFAULT_PAINTINGS = [
     pricePKR: 2500,
     priceUSD: 9,
     badge: "Best Seller",
-    wallImage: "/images/hope_wall.jpg",
-    closeupImage: "/images/hope.png",
+    wallImage: resolveAssetUrl("/images/hope_wall.jpg"),
+    closeupImage: resolveAssetUrl("/images/hope.png"),
     description:
       "An emotional sacred journey artwork depicting a devotee beholding the Holy Kaaba in Makkah. Hand-painted in rich impasto oil paint on a seasoned natural wood slice.",
     inStock: true,
@@ -109,8 +111,8 @@ export const DEFAULT_PAINTINGS = [
     pricePKR: 2500,
     priceUSD: 9,
     badge: "Customizable",
-    wallImage: "/images/hamara_ghr_wall.jpg",
-    closeupImage: "/images/hamara_ghr.png",
+    wallImage: resolveAssetUrl("/images/hamara_ghr_wall.jpg"),
+    closeupImage: resolveAssetUrl("/images/hamara_ghr.png"),
     description:
       "Enchanting night cottage under starry skies with glowing warm windows and personalized family nameplate 'پیارا گھر'. Can be customized with your family name or special date.",
     inStock: true,
@@ -126,8 +128,8 @@ export const DEFAULT_PAINTINGS = [
     pricePKR: 2500,
     priceUSD: 9,
     badge: "New Arrival",
-    wallImage: "/images/autumn_lamp_wall.jpg",
-    closeupImage: "/images/autumn_lamp.png",
+    wallImage: resolveAssetUrl("/images/autumn_lamp_wall.jpg"),
+    closeupImage: resolveAssetUrl("/images/autumn_lamp.png"),
     description:
       "Warm glowing vintage wrought iron street lantern against rustic brickwork surrounded by fiery amber autumn foliage. Thick knife textured oil painting on a round natural wood slice.",
     inStock: true,
@@ -143,8 +145,8 @@ export const DEFAULT_PAINTINGS = [
     pricePKR: 2500,
     priceUSD: 9,
     badge: "Personalized",
-    wallImage: "/images/wedding_wall.png",
-    closeupImage: "/images/wedding.png",
+    wallImage: resolveAssetUrl("/images/wedding_wall.png"),
+    closeupImage: resolveAssetUrl("/images/wedding.png"),
     description:
       "A timeless personalized wedding announcement and anniversary keepsake painted on genuine tree wood slice. Custom names and dates hand-lettered with botanical leaf wreath.",
     inStock: true,
@@ -181,10 +183,10 @@ export const DEFAULT_REVIEW_CARDS = [
     rating: 5,
     artPurchased: "Hamara Ghar Moonlit Cottage",
     description:
-      "“Ordered this customized with our family name and house date. The impasto knife texture on the starry sky and cottage glow is unbelievable. 100% authentic wood slice and pristine jute packaging!”",
-    className: "bg-gradient-to-br from-emerald-950 via-teal-950 to-emerald-900 border border-emerald-500/30 text-white",
+      "“Ordered two personalized wood slice pieces with our family name inscribed in Urdu Nastaliq. The palette knife impasto texture on the cottage roof and glowing windows is breathtaking!”",
+    className: "bg-gradient-to-br from-emerald-700 via-teal-900 to-slate-900 border border-emerald-500/30 text-white",
     skeleton: null,
-    config: { y: -60, x: 360, rotate: -4, zIndex: 4 }
+    config: { y: -10, x: -160, rotate: -4, zIndex: 1 }
   },
   {
     title: "Malik Shahbaz",
@@ -192,21 +194,20 @@ export const DEFAULT_REVIEW_CARDS = [
     rating: 5,
     artPurchased: "Autumn Glow Vintage Street Lamp",
     description:
-      "“Visited their Faisalabad studio and was stunned by the wood slice craft. The vibrant amber leaves and glowing lantern light reflect beautifully under room spotlights. Truly museum-grade craftsmanship!”",
-    className: "bg-gradient-to-br from-purple-950 via-violet-950 to-purple-900 border border-purple-500/30 text-white",
+      "“Being from Faisalabad myself, I was so proud to see such exquisite handmade wood slice art coming from our home city. Visited their atelier in D-Ground and saw the impasto painting craft live!”",
+    className: "bg-gradient-to-br from-rose-700 via-purple-900 to-slate-900 border border-rose-500/30 text-white",
     skeleton: null,
-    config: { y: 20, x: 540, rotate: 10, zIndex: 5 }
+    config: { y: 30, x: 80, rotate: 3, zIndex: 4 }
   },
   {
     title: "Zainab Al-Maktoum",
     city: "Downtown Dubai, UAE",
     rating: 5,
-    artPurchased: "Personalized Wedding Ceremony Keepsake",
+    artPurchased: "Personalized Wedding Keepsake",
     description:
-      "“Delivered via DHL all the way from Faisalabad to Dubai in impeccable condition. Customized with our wedding date and names on natural tree bark slice. Everyone at our anniversary asked where we got it!”",
-    className: "bg-gradient-to-br from-rose-950 via-stone-900 to-amber-950 border border-rose-500/30 text-white",
+      "“Delivered via DHL all the way from Faisalabad to Dubai in impeccable condition. The eco-friendly jute wrap and solid tree bark slice preserved the delicate oil layers completely intact. Truly museum grade!”",
+    className: "bg-gradient-to-br from-amber-700 via-orange-950 to-slate-900 border border-amber-500/30 text-white",
     skeleton: null,
-    config: { y: -10, x: 720, rotate: -6, zIndex: 6 }
+    config: { y: -30, x: -60, rotate: -8, zIndex: 2 }
   }
 ];
-

@@ -16,6 +16,7 @@ import {
   DEFAULT_REVIEW_CARDS
 } from './data/artData';
 import { Sparkles, Filter, SlidersHorizontal, MessageCircle, RefreshCw, CheckCircle2, X } from 'lucide-react';
+import { resolveAssetUrl } from './lib/utils';
 
 export default function App() {
   // Persistence state
@@ -32,11 +33,19 @@ export default function App() {
           const missingDefaults = DEFAULT_PAINTINGS.filter((p) => !existingIds.has(p.id));
           const merged = [...validList, ...missingDefaults];
           if (merged.length > 0) {
-            return merged;
+            return merged.map(p => ({
+              ...p,
+              wallImage: resolveAssetUrl(p.wallImage),
+              closeupImage: resolveAssetUrl(p.closeupImage)
+            }));
           }
         }
       }
-      return DEFAULT_PAINTINGS;
+      return DEFAULT_PAINTINGS.map(p => ({
+        ...p,
+        wallImage: resolveAssetUrl(p.wallImage),
+        closeupImage: resolveAssetUrl(p.closeupImage)
+      }));
     } catch (e) {
       return DEFAULT_PAINTINGS;
     }
@@ -45,7 +54,11 @@ export default function App() {
   const [storySteps, setStorySteps] = useState(() => {
     try {
       const saved = localStorage.getItem('withinart_story') || localStorage.getItem('rangrez_story');
-      return saved ? JSON.parse(saved) : DEFAULT_STORY_STEPS;
+      const list = saved ? JSON.parse(saved) : DEFAULT_STORY_STEPS;
+      return list.map(s => ({
+        ...s,
+        image: resolveAssetUrl(s.image)
+      }));
     } catch (e) {
       return DEFAULT_STORY_STEPS;
     }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lens } from '@/components/ui/lens';
 import { LiquidMetalButton } from '@/components/ui/liquid-metal-button';
 import { ShoppingBag, MessageCircle, Sparkles, Check, Flame, Award, ZoomIn, ArrowRight } from 'lucide-react';
+import { resolveAssetUrl } from '@/lib/utils';
 
 export function PaintingCard({
   painting,
@@ -14,7 +15,8 @@ export function PaintingCard({
   const [addedAnimation, setAddedAnimation] = useState(false);
 
   const showCloseup = viewMode === 'closeup' || (viewMode === 'auto' && isHovered);
-  const currentImage = showCloseup ? painting.closeupImage : painting.wallImage;
+  const rawImage = showCloseup ? painting.closeupImage : painting.wallImage;
+  const currentImage = resolveAssetUrl(rawImage);
 
   const handleAddToCart = (e) => {
     e.stopPropagation();

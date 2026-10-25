@@ -1,6 +1,7 @@
 import React from 'react';
 import { Palette, MapPin, Phone, MessageCircle, Heart, ShieldCheck, TreePine, PackageCheck } from 'lucide-react';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
+import { resolveAssetUrl } from '@/lib/utils';
 
 export function Footer({ studioInfo, onOpenManager }) {
   return (
@@ -13,7 +14,7 @@ export function Footer({ studioInfo, onOpenManager }) {
           {/* Col 1: Brand & Origin */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <img src="/images/logo.png" alt="Withinart Logo" className="h-10 sm:h-12 w-auto object-contain drop-shadow-md" />
+              <img src={resolveAssetUrl('/images/logo.png')} alt="Withinart Logo" className="h-10 sm:h-12 w-auto object-contain drop-shadow-md" />
               <div>
                 <span className="font-cinzel text-xl font-bold tracking-wider text-white block">
                   WITHINART

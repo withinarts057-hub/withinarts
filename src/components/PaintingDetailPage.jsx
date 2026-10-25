@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Lens } from '@/components/ui/lens';
 import { LiquidMetalButton } from '@/components/ui/liquid-metal-button';
+import { resolveAssetUrl } from '@/lib/utils';
 import {
   ArrowLeft,
   ShoppingBag,
@@ -39,7 +40,7 @@ export function PaintingDetailPage({
 
   if (!painting) return null;
 
-  const currentImg = activeView === 'closeup' ? painting.closeupImage : painting.wallImage;
+  const currentImg = resolveAssetUrl(activeView === 'closeup' ? painting.closeupImage : painting.wallImage);
 
   const handleAdd = () => {
     onAddToCart(painting);
@@ -81,7 +82,7 @@ export function PaintingDetailPage({
               title="Withinart"
             >
               <img
-                src="/images/logo.png"
+                src={resolveAssetUrl('/images/logo.png')}
                 alt="Withinart"
                 className="h-10 sm:h-12 md:h-14 w-auto object-contain drop-shadow-sm"
               />

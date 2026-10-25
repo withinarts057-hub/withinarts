@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LiquidMetalButton } from '@/components/ui/liquid-metal-button';
 import { ShoppingBag, Search, X, MessageCircle, MapPin } from 'lucide-react';
+import { resolveAssetUrl } from '@/lib/utils';
 
 export function Navbar({
   searchTerm,
@@ -56,7 +57,7 @@ export function Navbar({
         >
           {/* Logo */}
           <img
-            src="/images/logo.png"
+            src={resolveAssetUrl('/images/logo.png')}
             alt="Withinart Logo"
             className="h-8 sm:h-9 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105 shrink-0"
           />

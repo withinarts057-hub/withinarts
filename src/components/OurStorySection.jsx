@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { LinkPreview } from '@/components/ui/link-preview';
 import { Sparkles, MapPin, TreePine, Paintbrush, PackageCheck, Eye, ArrowUpRight } from 'lucide-react';
+import { resolveAssetUrl } from '@/lib/utils';
 
 export function OurStorySection({ storySteps, studioInfo }) {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
-  const steps = storySteps && storySteps.length >= 4 ? storySteps : [
+  const rawSteps = storySteps && storySteps.length >= 4 ? storySteps : [
     {
       id: "step-1",
       stepNumber: "01",
@@ -47,6 +48,11 @@ export function OurStorySection({ storySteps, studioInfo }) {
       color: "amber"
     }
   ];
+
+  const steps = rawSteps.map(s => ({
+    ...s,
+    image: resolveAssetUrl(s.image)
+  }));
 
   const currentStep = steps[activeStepIndex] || steps[0];
 

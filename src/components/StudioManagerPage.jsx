@@ -19,6 +19,8 @@ import {
   Eye,
   Lock
 } from 'lucide-react';
+import { resolveAssetUrl } from '@/lib/utils';
+
 
 export function StudioManagerPage({
   onBack,
@@ -176,7 +178,7 @@ export function StudioManagerPage({
           </button>
 
           <div className="flex items-center gap-3">
-            <img src="/images/logo.png" alt="Withinart Logo" className="h-10 w-auto object-contain hidden sm:block" />
+            <img src={resolveAssetUrl('/images/logo.png')} alt="Withinart Logo" className="h-10 w-auto object-contain hidden sm:block" />
             <div className="text-center sm:text-left">
               <h1 className="font-playfair font-bold text-lg sm:text-xl text-slate-900">
                 Withinart — Studio Manager
