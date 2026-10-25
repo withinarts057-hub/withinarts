@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
-  // Use /withinart/ for GitHub Actions or production builds so images and assets load correctly on GitHub Pages
-  base: process.env.GITHUB_ACTIONS ? '/withinart/' : './',
+  // Base path for GitHub Pages (https://codex-wolfers.github.io/withinart/)
+  base: '/withinart/',
   plugins: [react()],
   resolve: {
     alias: {
