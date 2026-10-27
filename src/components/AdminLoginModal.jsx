@@ -85,7 +85,7 @@ export function AdminLoginModal({ isOpen, onClose, onSuccess }) {
           </div>
 
           <h2 className="text-2xl font-cinzel font-bold text-slate-900">
-            Withinart Management
+            Withinarts Management
           </h2>
           <p className="text-xs text-slate-500 mt-1">
             Secure authentication for Faisalabad Art Studio management

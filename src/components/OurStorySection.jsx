@@ -6,7 +6,7 @@ import { resolveAssetUrl } from '@/lib/utils';
 export function OurStorySection({ storySteps, studioInfo }) {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
-  const rawSteps = storySteps && storySteps.length >= 4 ? storySteps : [
+  const steps = storySteps && storySteps.length >= 4 ? storySteps : [
     {
       id: "step-1",
       stepNumber: "01",
@@ -49,11 +49,6 @@ export function OurStorySection({ storySteps, studioInfo }) {
     }
   ];
 
-  const steps = rawSteps.map(s => ({
-    ...s,
-    image: resolveAssetUrl(s.image)
-  }));
-
   const currentStep = steps[activeStepIndex] || steps[0];
 
   return (
@@ -74,7 +69,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
         </h2>
 
         <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-          We are master artisans based in Faisalabad, creating 100% original handmade fine art. 
+          We are master artisans based in Faisalabad, creating 100% original handmade fine art.
           Follow our 4-step artisan journey below to experience how each masterpiece is brought to life.
         </p>
       </div>
@@ -87,11 +82,10 @@ export function OurStorySection({ storySteps, studioInfo }) {
           <div
             onMouseEnter={() => setActiveStepIndex(0)}
             onClick={() => setActiveStepIndex(0)}
-            className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 border cursor-pointer ${
-              activeStepIndex === 0
+            className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 border cursor-pointer ${activeStepIndex === 0
                 ? 'bg-white border-sky-300 shadow-xl shadow-sky-500/10'
                 : 'bg-white/70 hover:bg-white border-slate-200/90 shadow-sm'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2.5 mb-2">
               <span className="w-7 h-7 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-bold">01</span>
@@ -116,7 +110,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
             {/* Embedded Mobile Visual (Shown on mobile, hidden on desktop where sticky preview is present) */}
             <div className="lg:hidden mt-5 rounded-2xl overflow-hidden border border-slate-200 aspect-[16/10] relative shadow-md">
               <img
-                src={steps[0].image}
+                src={resolveAssetUrl(steps[0].image)}
                 alt={steps[0].title}
                 className="w-full h-full object-cover"
                 loading="lazy"
@@ -135,11 +129,10 @@ export function OurStorySection({ storySteps, studioInfo }) {
           <div
             onMouseEnter={() => setActiveStepIndex(1)}
             onClick={() => setActiveStepIndex(1)}
-            className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 border cursor-pointer ${
-              activeStepIndex === 1
+            className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 border cursor-pointer ${activeStepIndex === 1
                 ? 'bg-white border-emerald-300 shadow-xl shadow-emerald-500/10'
                 : 'bg-white/70 hover:bg-white border-slate-200/90 shadow-sm'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2.5 mb-2">
               <span className="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-bold">02</span>
@@ -152,7 +145,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
               A timeless painting begins with its wooden foundation. For our custom stretcher bars, we select{' '}
               <LinkPreview
                 isStatic={true}
-                imageSrc={steps[1].image}
+                imageSrc={resolveAssetUrl(steps[1].image)}
                 className="inline-flex items-center gap-1 font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-0.5 rounded-lg border border-emerald-200 decoration-emerald-400 underline underline-offset-4 cursor-pointer transition-colors shadow-sm"
               >
                 <span>[Genuine Sheesham Wood]</span>
@@ -164,7 +157,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
             {/* Embedded Mobile Visual */}
             <div className="lg:hidden mt-5 rounded-2xl overflow-hidden border border-slate-200 aspect-[16/10] relative shadow-md">
               <img
-                src={steps[1].image}
+                src={resolveAssetUrl(steps[1].image)}
                 alt={steps[1].title}
                 className="w-full h-full object-cover"
                 loading="lazy"
@@ -183,11 +176,10 @@ export function OurStorySection({ storySteps, studioInfo }) {
           <div
             onMouseEnter={() => setActiveStepIndex(2)}
             onClick={() => setActiveStepIndex(2)}
-            className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 border cursor-pointer ${
-              activeStepIndex === 2
+            className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 border cursor-pointer ${activeStepIndex === 2
                 ? 'bg-white border-rose-300 shadow-xl shadow-rose-500/10'
                 : 'bg-white/70 hover:bg-white border-slate-200/90 shadow-sm'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2.5 mb-2">
               <span className="w-7 h-7 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center text-xs font-bold">03</span>
@@ -200,7 +192,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
               Over our tightly stretched linen canvas, our artists use sculptured palette knives and natural sable brushes in{' '}
               <LinkPreview
                 isStatic={true}
-                imageSrc={steps[2].image}
+                imageSrc={resolveAssetUrl(steps[2].image)}
                 className="inline-flex items-center gap-1 font-bold text-rose-800 bg-rose-50 hover:bg-rose-100 px-2.5 py-0.5 rounded-lg border border-rose-200 decoration-rose-400 underline underline-offset-4 cursor-pointer transition-colors shadow-sm"
               >
                 <span>[Live Palette Knife Craft]</span>
@@ -212,7 +204,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
             {/* Embedded Mobile Visual */}
             <div className="lg:hidden mt-5 rounded-2xl overflow-hidden border border-slate-200 aspect-[16/10] relative shadow-md">
               <img
-                src={steps[2].image}
+                src={resolveAssetUrl(steps[2].image)}
                 alt={steps[2].title}
                 className="w-full h-full object-cover"
                 loading="lazy"
@@ -231,11 +223,10 @@ export function OurStorySection({ storySteps, studioInfo }) {
           <div
             onMouseEnter={() => setActiveStepIndex(3)}
             onClick={() => setActiveStepIndex(3)}
-            className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 border cursor-pointer ${
-              activeStepIndex === 3
+            className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 border cursor-pointer ${activeStepIndex === 3
                 ? 'bg-white border-amber-300 shadow-xl shadow-amber-500/10'
                 : 'bg-white/70 hover:bg-white border-slate-200/90 shadow-sm'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2.5 mb-2">
               <span className="w-7 h-7 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-bold">04</span>
@@ -248,7 +239,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
               In place of synthetic plastic bubble wraps, our hallmark is{' '}
               <LinkPreview
                 isStatic={true}
-                imageSrc={steps[3].image}
+                imageSrc={resolveAssetUrl(steps[3].image)}
                 className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 px-2.5 py-0.5 rounded-lg border border-amber-200 decoration-amber-400 underline underline-offset-4 cursor-pointer transition-colors shadow-sm"
               >
                 <span>[Signature Jute Burlap]</span>
@@ -260,7 +251,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
             {/* Embedded Mobile Visual */}
             <div className="lg:hidden mt-5 rounded-2xl overflow-hidden border border-slate-200 aspect-[16/10] relative shadow-md">
               <img
-                src={steps[3].image}
+                src={resolveAssetUrl(steps[3].image)}
                 alt={steps[3].title}
                 className="w-full h-full object-cover"
                 loading="lazy"
@@ -281,7 +272,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
           <div className="relative rounded-3xl overflow-hidden bg-white border border-slate-200/90 shadow-2xl p-3 sm:p-4 transition-all duration-500">
             <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden bg-slate-100">
               <img
-                src={currentStep.image}
+                src={resolveAssetUrl(currentStep.image)}
                 alt={currentStep.title}
                 key={currentStep.image}
                 className="w-full h-full object-cover animate-in fade-in zoom-in-95 duration-500"

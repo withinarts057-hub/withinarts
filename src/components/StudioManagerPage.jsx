@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft,
   Plus,
@@ -17,10 +17,28 @@ import {
   X,
   Upload,
   Eye,
-  Lock
+  Lock,
+  ShoppingBag,
+  Clock,
+  Truck,
+  AlertCircle,
+  Search,
+  RefreshCw,
+  FileText,
+  User,
+  MapPin,
+  PenTool,
+  MessageCircle,
+  Calendar,
+  PenLine
 } from 'lucide-react';
 import { resolveAssetUrl } from '@/lib/utils';
-
+import {
+  fetchOrdersFromSupabase,
+  saveOrderToSupabase,
+  updateOrderStatusInSupabase,
+  deleteOrderFromSupabase
+} from '@/lib/supabase';
 
 export function StudioManagerPage({
   onBack,
@@ -33,10 +51,112 @@ export function StudioManagerPage({
   onResetDefaults,
   onLock
 }) {
-  const [activeTab, setActiveTab] = useState('paintings'); // 'paintings', 'whatsapp', 'story'
+  const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'paintings', 'whatsapp', 'story'
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingPainting, setEditingPainting] = useState(null); // painting currently being edited
   const [toastMessage, setToastMessage] = useState('');
+
+  // Orders State (Supabase Connected)
+  const [orders, setOrders] = useState([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const [orderFilter, setOrderFilter] = useState('all');
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  const [showCustomOrderModal, setShowCustomOrderModal] = useState(false);
+  const [customOrderForm, setCustomOrderForm] = useState({
+    name: '',
+    phone: '',
+    city: 'Faisalabad',
+    address: '',
+    artworkTitle: '',
+    dimensions: '12 x 18 inches',
+    woodFrame: 'Seasoned Solid Sheesham Frame',
+    customNameText: '',
+    pricePKR: 5000,
+    status: 'In Progress',
+    notes: ''
+  });
+
+  const loadOrders = async () => {
+    setIsLoadingOrders(true);
+    const res = await fetchOrdersFromSupabase();
+    if (res.success && res.orders) {
+      setOrders(res.orders);
+    }
+    setIsLoadingOrders(false);
+  };
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    await updateOrderStatusInSupabase(orderId, newStatus);
+    showToast(`Order status updated to: ${newStatus}`);
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to delete this order?")) return;
+    setOrders(prev => prev.filter(o => o.id !== orderId));
+    await deleteOrderFromSupabase(orderId);
+    showToast("Order removed");
+  };
+
+  const handleSaveCustomOrder = async (e) => {
+    e.preventDefault();
+    if (!customOrderForm.name || !customOrderForm.phone) {
+      alert("Please provide customer name and phone number.");
+      return;
+    }
+
+    const payload = {
+      orderNumber: `CUSTOM-${Date.now().toString().slice(-5)}`,
+      name: customOrderForm.name,
+      phone: customOrderForm.phone,
+      city: customOrderForm.city,
+      address: customOrderForm.address,
+      customName: customOrderForm.customNameText,
+      items: [
+        {
+          id: `custom-item-${Date.now()}`,
+          title: customOrderForm.artworkTitle || 'Bespoke Custom Artwork',
+          dimensions: customOrderForm.dimensions || 'Custom Size',
+          woodFrame: customOrderForm.woodFrame || 'Seasoned Sheesham Wood',
+          pricePKR: Number(customOrderForm.pricePKR) || 0,
+          qty: 1,
+          wallImage: '/images/madina_wall.jpg'
+        }
+      ],
+      totalPKR: Number(customOrderForm.pricePKR) || 0,
+      totalUSD: Math.round((Number(customOrderForm.pricePKR) || 0) / 278),
+      orderType: 'custom',
+      status: customOrderForm.status || 'In Progress',
+      notes: customOrderForm.notes || ''
+    };
+
+    const res = await saveOrderToSupabase(payload);
+    if (res.success && res.data) {
+      setOrders(prev => [res.data, ...prev]);
+    } else {
+      setOrders(prev => [{ ...payload, id: `local-${Date.now()}`, created_at: new Date().toISOString() }, ...prev]);
+    }
+
+    showToast("Custom order saved successfully!");
+    setShowCustomOrderModal(false);
+    setCustomOrderForm({
+      name: '',
+      phone: '',
+      city: 'Faisalabad',
+      address: '',
+      artworkTitle: '',
+      dimensions: '12 x 18 inches',
+      woodFrame: 'Seasoned Solid Sheesham Frame',
+      customNameText: '',
+      pricePKR: 5000,
+      status: 'In Progress',
+      notes: ''
+    });
+  };
 
   // Form state for creating a new painting
   const [formData, setFormData] = useState({
@@ -178,10 +298,10 @@ export function StudioManagerPage({
           </button>
 
           <div className="flex items-center gap-3">
-            <img src={resolveAssetUrl('/images/logo.png')} alt="Withinart Logo" className="h-10 w-auto object-contain hidden sm:block" />
+            <img src={resolveAssetUrl("/images/logo.png")} alt="Withinarts Logo" className="h-10 w-auto object-contain hidden sm:block" />
             <div className="text-center sm:text-left">
               <h1 className="font-playfair font-bold text-lg sm:text-xl text-slate-900">
-                Withinart — Studio Manager
+                Withinarts — Studio Manager
               </h1>
               <p className="text-[11px] text-slate-500 font-medium">
                 Studio Administration • Intuitive catalog and content control
@@ -216,14 +336,24 @@ export function StudioManagerPage({
       {/* Content Container */}
       <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
         {/* Simple Tabs */}
-        <div className="flex items-center gap-3 border-b border-slate-200 pb-4 mb-8">
+        <div className="flex items-center gap-2 sm:gap-3 border-b border-slate-200 pb-4 mb-8 overflow-x-auto">
           <button
-            onClick={() => setActiveTab('paintings')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === 'paintings'
+            onClick={() => setActiveTab('orders')}
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 cursor-pointer ${activeTab === 'orders'
                 ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
                 : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-            }`}
+              }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Orders & Custom Inquiries ({orders.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('paintings')}
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 cursor-pointer ${activeTab === 'paintings'
+                ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+              }`}
           >
             <Palette className="w-4 h-4" />
             <span>Paintings & Prices ({paintings.length})</span>
@@ -231,11 +361,10 @@ export function StudioManagerPage({
 
           <button
             onClick={() => setActiveTab('whatsapp')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === 'whatsapp'
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 cursor-pointer ${activeTab === 'whatsapp'
                 ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
                 : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-            }`}
+              }`}
           >
             <Phone className="w-4 h-4" />
             <span>WhatsApp & Studio Info</span>
@@ -243,16 +372,510 @@ export function StudioManagerPage({
 
           <button
             onClick={() => setActiveTab('story')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === 'story'
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 cursor-pointer ${activeTab === 'story'
                 ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
                 : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-            }`}
+              }`}
           >
             <Layers className="w-4 h-4" />
             <span>Our Story (4 Steps)</span>
           </button>
         </div>
+
+        {/* TAB 0: ORDERS & CUSTOM INQUIRIES */}
+        {activeTab === 'orders' && (
+          <div className="space-y-6">
+            {/* Top Action Box */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="text-base sm:text-lg font-playfair font-bold text-slate-900">
+                    Studio Orders & Custom Commissions
+                  </h2>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Supabase Live
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500">
+                  Track website bag checkouts, WhatsApp inquiries, and log bespoke custom painting orders.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={loadOrders}
+                  disabled={isLoadingOrders}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+                  title="Refresh Orders"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingOrders ? 'animate-spin text-sky-600' : ''}`} />
+                  <span className="hidden sm:inline">Refresh</span>
+                </button>
+
+                <button
+                  onClick={() => setShowCustomOrderModal(true)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-purple-600/20 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Add Custom Order</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              {/* Search */}
+              <div className="relative flex-1 max-w-sm">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={orderSearchQuery}
+                  onChange={(e) => setOrderSearchQuery(e.target.value)}
+                  placeholder="Search customer, phone, city, order #..."
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 outline-none focus:border-sky-500 shadow-xs"
+                />
+              </div>
+
+              {/* Status Filters */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                {['all', 'Pending', 'In Progress', 'Completed', 'Dispatched', 'custom'].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setOrderFilter(f)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      orderFilter === f
+                        ? 'bg-slate-900 text-white shadow-xs'
+                        : 'bg-white hover:bg-slate-100 text-slate-600 border border-slate-200'
+                    }`}
+                  >
+                    {f === 'all'
+                      ? `All (${orders.length})`
+                      : f === 'custom'
+                      ? `🎨 Custom (${orders.filter(o => o.order_type === 'custom').length})`
+                      : `${f} (${orders.filter(o => o.status === f).length})`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Orders List */}
+            {isLoadingOrders && orders.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-slate-200">
+                <RefreshCw className="w-6 h-6 animate-spin text-sky-600 mx-auto mb-2" />
+                <p className="text-xs text-slate-500 font-medium">Fetching orders from Supabase...</p>
+              </div>
+            ) : orders.filter(o => {
+                if (orderFilter !== 'all') {
+                  if (orderFilter === 'custom') {
+                    if (o.order_type !== 'custom') return false;
+                  } else if (o.status !== orderFilter) {
+                    return false;
+                  }
+                }
+                if (orderSearchQuery.trim()) {
+                  const q = orderSearchQuery.toLowerCase();
+                  const name = (o.customer_name || '').toLowerCase();
+                  const phone = (o.customer_phone || '').toLowerCase();
+                  const orderNum = (o.order_number || '').toLowerCase();
+                  const city = (o.customer_city || '').toLowerCase();
+                  return name.includes(q) || phone.includes(q) || orderNum.includes(q) || city.includes(q);
+                }
+                return true;
+              }).length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-slate-300">
+                <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                <h4 className="font-playfair font-bold text-slate-700 text-sm">No orders found</h4>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+                  {orderSearchQuery ? 'No orders match your search criteria.' : 'No orders recorded in this filter yet. You can create a custom order anytime!'}
+                </p>
+                <button
+                  onClick={() => setShowCustomOrderModal(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold shadow-md cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Create Custom Order</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {orders.filter(o => {
+                  if (orderFilter !== 'all') {
+                    if (orderFilter === 'custom') {
+                      if (o.order_type !== 'custom') return false;
+                    } else if (o.status !== orderFilter) {
+                      return false;
+                    }
+                  }
+                  if (orderSearchQuery.trim()) {
+                    const q = orderSearchQuery.toLowerCase();
+                    const name = (o.customer_name || '').toLowerCase();
+                    const phone = (o.customer_phone || '').toLowerCase();
+                    const orderNum = (o.order_number || '').toLowerCase();
+                    const city = (o.customer_city || '').toLowerCase();
+                    return name.includes(q) || phone.includes(q) || orderNum.includes(q) || city.includes(q);
+                  }
+                  return true;
+                }).map((ord) => {
+                  const items = Array.isArray(ord.items) ? ord.items : [];
+                  const orderDate = ord.created_at ? new Date(ord.created_at).toLocaleString() : 'Recent';
+                  const isCustom = ord.order_type === 'custom';
+
+                  return (
+                    <div
+                      key={ord.id}
+                      className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-slate-300 transition-all flex flex-col gap-4"
+                    >
+                      {/* Top Header of Card */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-lg">
+                            #{ord.order_number || ord.id?.slice(0, 8)}
+                          </span>
+
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              isCustom
+                                ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                : 'bg-sky-100 text-sky-800 border border-sky-200'
+                            }`}
+                          >
+                            {isCustom ? '🎨 Bespoke Custom Order' : 'Website Order'}
+                          </span>
+
+                          <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {orderDate}
+                          </span>
+                        </div>
+
+                        {/* Status Dropdown */}
+                        <div className="flex items-center gap-2 self-start sm:self-auto">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                            Status:
+                          </span>
+                          <select
+                            value={ord.status || 'Pending'}
+                            onChange={(e) => handleStatusChange(ord.id, e.target.value)}
+                            className={`text-xs font-bold px-3 py-1 rounded-xl outline-none border cursor-pointer ${
+                              ord.status === 'Completed'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                : ord.status === 'In Progress'
+                                ? 'bg-blue-50 text-blue-800 border-blue-300'
+                                : ord.status === 'Dispatched'
+                                ? 'bg-purple-50 text-purple-800 border-purple-300'
+                                : ord.status === 'Cancelled'
+                                ? 'bg-rose-50 text-rose-800 border-rose-300'
+                                : 'bg-amber-50 text-amber-800 border-amber-300'
+                            }`}
+                          >
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Dispatched">Dispatched</option>
+                            <option value="Cancelled">Cancelled</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Middle: Customer Details & Custom Text */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5 text-xs text-slate-700">
+                          <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
+                            <User className="w-4 h-4 text-sky-600" />
+                            <span>{ord.customer_name}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Phone className="w-3.5 h-3.5 text-slate-400" />
+                            <span className="font-mono">{ord.customer_phone}</span>
+                            {ord.customer_phone && (
+                              <a
+                                href={`https://wa.me/${ord.customer_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                                  `Hello ${ord.customer_name}! This is Withinarts Fine Art Studio regarding your order #${ord.order_number || ''}.`
+                                )}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold border border-emerald-200"
+                              >
+                                <MessageCircle className="w-3 h-3" />
+                                <span>WhatsApp Client</span>
+                              </a>
+                            )}
+                          </div>
+
+                          {(ord.customer_city || ord.customer_address) && (
+                            <div className="flex items-start gap-2">
+                              <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
+                              <span className="text-slate-600">
+                                {ord.customer_address ? `${ord.customer_address}, ` : ''}
+                                <strong>{ord.customer_city}</strong>
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Custom Inscription Calligraphy Box */}
+                        {ord.custom_name_text && (
+                          <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-xs">
+                            <div className="flex items-center gap-1.5 font-bold text-amber-900 mb-1">
+                              <PenLine className="w-3.5 h-3.5 text-amber-600" />
+                              <span>Custom Name / Calligraphy Requested on Canvas:</span>
+                            </div>
+                            <p className="font-serif italic text-amber-950 font-bold bg-white/80 p-2 rounded-lg border border-amber-200/60">
+                              "{ord.custom_name_text}"
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Items Ordered List */}
+                      {items.length > 0 && (
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/70 space-y-2">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                            Artwork(s) in Order:
+                          </span>
+                          <div className="divide-y divide-slate-200/60">
+                            {items.map((it, idx) => (
+                              <div key={idx} className="py-1.5 flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-2">
+                                  {it.wallImage && (
+                                    <img
+                                      src={resolveAssetUrl(it.wallImage)}
+                                      alt={it.title}
+                                      className="w-8 h-8 rounded-lg object-cover border border-slate-200 bg-white"
+                                    />
+                                  )}
+                                  <div>
+                                    <span className="font-semibold text-slate-800">{it.title}</span>
+                                    {it.dimensions && (
+                                      <span className="text-[10px] text-slate-500 ml-1.5">
+                                        ({it.dimensions} • {it.woodFrame})
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <span className="font-bold text-slate-900 shrink-0 ml-2">
+                                  {it.qty || 1} × Rs. {Number(it.pricePKR || 0).toLocaleString()} PKR
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Footer: Total & Actions */}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100 flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-slate-500 font-medium">Order Total:</span>
+                          <span className="text-base font-bold text-sky-700 font-heading">
+                            Rs. {Number(ord.total_pkr || 0).toLocaleString()} PKR
+                          </span>
+                          {ord.total_usd > 0 && (
+                            <span className="text-xs text-slate-400 font-medium">
+                              (~${ord.total_usd} USD)
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDeleteOrder(ord.id)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            title="Delete Order"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MODAL: + Add Custom Order */}
+        {showCustomOrderModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-3xl bg-white border border-slate-200 shadow-2xl p-6 sm:p-7 text-slate-900">
+              <button
+                onClick={() => setShowCustomOrderModal(false)}
+                className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-600 text-white flex items-center justify-center shadow-md">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-playfair font-bold text-slate-900">
+                    Add Bespoke Custom Order
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Log a direct phone client, walk-in, or custom calligraphy commission.
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveCustomOrder} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Customer Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={customOrderForm.name}
+                      onChange={(e) => setCustomOrderForm({ ...customOrderForm, name: e.target.value })}
+                      placeholder="e.g. Ahmed Raza"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Phone / WhatsApp *</label>
+                    <input
+                      type="tel"
+                      required
+                      value={customOrderForm.phone}
+                      onChange={(e) => setCustomOrderForm({ ...customOrderForm, phone: e.target.value })}
+                      placeholder="03001234567"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">City</label>
+                    <input
+                      type="text"
+                      value={customOrderForm.city}
+                      onChange={(e) => setCustomOrderForm({ ...customOrderForm, city: e.target.value })}
+                      placeholder="Faisalabad, Lahore, Islamabad..."
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Delivery Address</label>
+                    <input
+                      type="text"
+                      value={customOrderForm.address}
+                      onChange={(e) => setCustomOrderForm({ ...customOrderForm, address: e.target.value })}
+                      placeholder="House, Street, Sector..."
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Artwork Title / Commission Spec *</label>
+                  <input
+                    type="text"
+                    required
+                    value={customOrderForm.artworkTitle}
+                    onChange={(e) => setCustomOrderForm({ ...customOrderForm, artworkTitle: e.target.value })}
+                    placeholder="e.g. Ayat-ul-Kursi with 24K Gold Leaf Inlay"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:border-purple-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Canvas Size</label>
+                    <input
+                      type="text"
+                      value={customOrderForm.dimensions}
+                      onChange={(e) => setCustomOrderForm({ ...customOrderForm, dimensions: e.target.value })}
+                      placeholder="18 x 24 inches"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Stretcher Wood Frame</label>
+                    <input
+                      type="text"
+                      value={customOrderForm.woodFrame}
+                      onChange={(e) => setCustomOrderForm({ ...customOrderForm, woodFrame: e.target.value })}
+                      placeholder="Seasoned Solid Sheesham Wood"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Custom Name to Paint */}
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
+                  <label className="block text-xs font-bold text-amber-900 mb-1">
+                    ✍️ Custom Name / Family Text to Paint on Artwork
+                  </label>
+                  <input
+                    type="text"
+                    value={customOrderForm.customNameText}
+                    onChange={(e) => setCustomOrderForm({ ...customOrderForm, customNameText: e.target.value })}
+                    placeholder="e.g. 'Saad & Ayesha' or 'ماشاءاللہ'"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-amber-300 text-xs text-slate-900 outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Agreed Price (PKR) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      value={customOrderForm.pricePKR}
+                      onChange={(e) => setCustomOrderForm({ ...customOrderForm, pricePKR: Number(e.target.value) })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-bold outline-none focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Initial Status</label>
+                    <select
+                      value={customOrderForm.status}
+                      onChange={(e) => setCustomOrderForm({ ...customOrderForm, status: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 font-semibold outline-none focus:border-purple-500"
+                    >
+                      <option value="In Progress">In Progress (Painting Active)</option>
+                      <option value="Pending">Pending Confirmation</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Dispatched">Dispatched</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Special Client Notes</label>
+                  <textarea
+                    rows={2}
+                    value={customOrderForm.notes}
+                    onChange={(e) => setCustomOrderForm({ ...customOrderForm, notes: e.target.value })}
+                    placeholder="e.g. Client requested dark blue background with heavy gold foil calligraphy..."
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:border-purple-500"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowCustomOrderModal(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-purple-600/20 active:scale-95 transition-all cursor-pointer"
+                  >
+                    Save Custom Order
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* TAB 1: PAINTINGS & PRICES */}
         {activeTab === 'paintings' && (
@@ -805,7 +1428,7 @@ export function StudioManagerPage({
                     <div className="flex items-center gap-2 shrink-0">
                       <div className="relative group/thumb">
                         <img
-                          src={p.wallImage}
+                          src={resolveAssetUrl(p.wallImage)}
                           alt={`${p.title} Wall`}
                           className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-contain bg-slate-50 p-0.5 border border-slate-200 shadow-xs"
                         />
@@ -815,7 +1438,7 @@ export function StudioManagerPage({
                       </div>
                       <div className="relative group/thumb">
                         <img
-                          src={p.closeupImage || p.wallImage}
+                          src={resolveAssetUrl(p.closeupImage || p.wallImage)}
                           alt={`${p.title} Product`}
                           className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-contain bg-slate-50 p-0.5 border border-slate-200 shadow-xs"
                         />
@@ -899,7 +1522,7 @@ export function StudioManagerPage({
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. 923007654321"
+                  placeholder="e.g. 923264784663"
                   value={studioInfo.whatsapp}
                   onChange={(e) => {
                     setStudioInfo(prev => ({ ...prev, whatsapp: e.target.value }));
@@ -908,7 +1531,7 @@ export function StudioManagerPage({
                   className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 font-bold text-slate-900 text-sm focus:border-sky-500 outline-none"
                 />
                 <span className="text-[11px] text-slate-500">
-                  Begin number with country code without dashes or spaces (e.g. 923007654321).
+                  Begin number with country code without dashes or spaces (e.g. 923264784663).
                 </span>
               </div>
 

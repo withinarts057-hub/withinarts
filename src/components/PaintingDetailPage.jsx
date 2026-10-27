@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Lens } from '@/components/ui/lens';
 import { LiquidMetalButton } from '@/components/ui/liquid-metal-button';
-import { resolveAssetUrl } from '@/lib/utils';
 import {
   ArrowLeft,
   ShoppingBag,
@@ -17,6 +16,7 @@ import {
   MapPin,
   CheckCircle2
 } from 'lucide-react';
+import { resolveAssetUrl } from '@/lib/utils';
 
 export function PaintingDetailPage({
   painting,
@@ -50,8 +50,8 @@ export function PaintingDetailPage({
 
   const handleWhatsAppOrder = () => {
     const formattedPrice = (Number(painting.pricePKR) || 0).toLocaleString();
-    const msg = `Hello Withinart! I would like to order this original handmade artwork:\n\n*Artwork:* ${painting.title}\n*Stretcher Frame:* ${painting.woodFrame}\n*Dimensions:* ${painting.dimensions}\n*Price:* Rs. ${formattedPrice} (PKR)\n\n✍️ *Custom Name/Text I want on the painting:* ________\n_(Please type the name or text you'd like hand-painted on this artwork above)_\n\nPlease confirm delivery in your signature eco-friendly jute packaging to my address.`;
-    window.open(`https://wa.me/${whatsappNumber || '923007654321'}?text=${encodeURIComponent(msg)}`, '_blank');
+    const msg = `Hello Withinarts! I would like to order this original handmade artwork:\n\n*Artwork:* ${painting.title}\n*Stretcher Frame:* ${painting.woodFrame}\n*Dimensions:* ${painting.dimensions}\n*Price:* Rs. ${formattedPrice} (PKR)\n\n✍️ *Custom Name/Text I want on the painting:* ________\n_(Please type the name or text you'd like hand-painted on this artwork above)_\n\nPlease confirm delivery in your signature eco-friendly jute packaging to my address.`;
+    window.open(`https://wa.me/${whatsappNumber || '923264784663'}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   // Other paintings for the bottom recommendations
@@ -79,11 +79,11 @@ export function PaintingDetailPage({
             <button
               onClick={onBack}
               className="pointer-events-auto hover:opacity-90 transition-transform hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
-              title="Withinart"
+              title="Withinarts"
             >
               <img
-                src={resolveAssetUrl('/images/logo.png')}
-                alt="Withinart"
+                src={resolveAssetUrl("/images/logo.png")}
+                alt="Withinarts"
                 className="h-10 sm:h-12 md:h-14 w-auto object-contain drop-shadow-sm"
               />
             </button>
@@ -128,22 +128,20 @@ export function PaintingDetailPage({
             <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white border border-slate-200 shadow-sm">
               <button
                 onClick={() => setActiveView('closeup')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
-                  activeView === 'closeup'
+                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${activeView === 'closeup'
                     ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <ZoomIn className="w-3.5 h-3.5" />
                 <span>Macro Closeup (Brushstrokes Lens Active)</span>
               </button>
               <button
                 onClick={() => setActiveView('wall')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeView === 'wall'
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeView === 'wall'
                     ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <span>Gallery Wall View</span>
               </button>
@@ -157,11 +155,10 @@ export function PaintingDetailPage({
                   <button
                     key={z}
                     onClick={() => setZoomFactor(z)}
-                    className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-colors ${
-                      zoomFactor === z
+                    className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-colors ${zoomFactor === z
                         ? 'bg-sky-100 text-sky-800'
                         : 'text-slate-500 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     {z}x
                   </button>
@@ -209,13 +206,12 @@ export function PaintingDetailPage({
           <div className="flex items-center gap-3 mt-4">
             <button
               onClick={() => setActiveView('closeup')}
-              className={`relative w-24 h-16 rounded-2xl overflow-hidden border-2 transition-all ${
-                activeView === 'closeup'
+              className={`relative w-24 h-16 rounded-2xl overflow-hidden border-2 transition-all ${activeView === 'closeup'
                   ? 'border-sky-500 shadow-md scale-105'
                   : 'border-slate-200 opacity-70 hover:opacity-100'
-              }`}
+                }`}
             >
-              <img src={painting.closeupImage} alt="Closeup" className="w-full h-full object-cover" />
+              <img src={resolveAssetUrl(painting.closeupImage)} alt="Closeup" className="w-full h-full object-cover" />
               <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-center text-white font-bold py-0.5">
                 Macro Closeup
               </span>
@@ -223,13 +219,12 @@ export function PaintingDetailPage({
 
             <button
               onClick={() => setActiveView('wall')}
-              className={`relative w-24 h-16 rounded-2xl overflow-hidden border-2 transition-all ${
-                activeView === 'wall'
+              className={`relative w-24 h-16 rounded-2xl overflow-hidden border-2 transition-all ${activeView === 'wall'
                   ? 'border-sky-500 shadow-md scale-105'
                   : 'border-slate-200 opacity-70 hover:opacity-100'
-              }`}
+                }`}
             >
-              <img src={painting.wallImage} alt="Wall view" className="w-full h-full object-cover" />
+              <img src={resolveAssetUrl(painting.wallImage)} alt="Wall view" className="w-full h-full object-cover" />
               <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-center text-white font-bold py-0.5">
                 Wall Display
               </span>

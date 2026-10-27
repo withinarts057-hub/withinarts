@@ -16,13 +16,12 @@ import {
   DEFAULT_REVIEW_CARDS
 } from './data/artData';
 import { Sparkles, Filter, SlidersHorizontal, MessageCircle, RefreshCw, CheckCircle2, X } from 'lucide-react';
-import { resolveAssetUrl } from './lib/utils';
 
 export default function App() {
   // Persistence state
   const [paintings, setPaintings] = useState(() => {
     try {
-      const saved = localStorage.getItem('withinart_paintings') || localStorage.getItem('rangrez_paintings');
+      const saved = localStorage.getItem('withinarts_paintings') || localStorage.getItem('withinart_paintings') || localStorage.getItem('rangrez_paintings');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
@@ -33,19 +32,11 @@ export default function App() {
           const missingDefaults = DEFAULT_PAINTINGS.filter((p) => !existingIds.has(p.id));
           const merged = [...validList, ...missingDefaults];
           if (merged.length > 0) {
-            return merged.map(p => ({
-              ...p,
-              wallImage: resolveAssetUrl(p.wallImage),
-              closeupImage: resolveAssetUrl(p.closeupImage)
-            }));
+            return merged;
           }
         }
       }
-      return DEFAULT_PAINTINGS.map(p => ({
-        ...p,
-        wallImage: resolveAssetUrl(p.wallImage),
-        closeupImage: resolveAssetUrl(p.closeupImage)
-      }));
+      return DEFAULT_PAINTINGS;
     } catch (e) {
       return DEFAULT_PAINTINGS;
     }
@@ -53,12 +44,8 @@ export default function App() {
 
   const [storySteps, setStorySteps] = useState(() => {
     try {
-      const saved = localStorage.getItem('withinart_story') || localStorage.getItem('rangrez_story');
-      const list = saved ? JSON.parse(saved) : DEFAULT_STORY_STEPS;
-      return list.map(s => ({
-        ...s,
-        image: resolveAssetUrl(s.image)
-      }));
+      const saved = localStorage.getItem('withinarts_story') || localStorage.getItem('withinart_story') || localStorage.getItem('rangrez_story');
+      return saved ? JSON.parse(saved) : DEFAULT_STORY_STEPS;
     } catch (e) {
       return DEFAULT_STORY_STEPS;
     }
@@ -66,11 +53,18 @@ export default function App() {
 
   const [studioInfo, setStudioInfo] = useState(() => {
     try {
-      const saved = localStorage.getItem('withinart_info') || localStorage.getItem('rangrez_info');
+      const saved = localStorage.getItem('withinarts_info') || localStorage.getItem('withinart_info') || localStorage.getItem('rangrez_info');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.name && (parsed.name.includes('Rangrez') || parsed.name.toLowerCase().includes('rangrez'))) {
+        if (parsed.name && (parsed.name.includes('Rangrez') || parsed.name.toLowerCase().includes('rangrez') || parsed.name === 'Withinart')) {
           parsed.name = DEFAULT_STUDIO_INFO.name;
+        }
+        if (parsed.email === 'msaadzia44@gmail.com' || !parsed.email) {
+          parsed.email = DEFAULT_STUDIO_INFO.email;
+        }
+        if (parsed.whatsapp === '923007654321' || !parsed.whatsapp) {
+          parsed.whatsapp = DEFAULT_STUDIO_INFO.whatsapp;
+          parsed.phone = DEFAULT_STUDIO_INFO.phone;
         }
         return parsed;
       }
@@ -82,7 +76,7 @@ export default function App() {
 
   const [reviewCards, setReviewCards] = useState(() => {
     try {
-      const saved = localStorage.getItem('withinart_reviews') || localStorage.getItem('rangrez_reviews');
+      const saved = localStorage.getItem('withinarts_reviews') || localStorage.getItem('withinart_reviews') || localStorage.getItem('rangrez_reviews');
       return saved ? JSON.parse(saved) : DEFAULT_REVIEW_CARDS;
     } catch (e) {
       return DEFAULT_REVIEW_CARDS;
@@ -91,7 +85,7 @@ export default function App() {
 
   const [cart, setCart] = useState(() => {
     try {
-      const saved = localStorage.getItem('withinart_cart') || localStorage.getItem('rangrez_cart');
+      const saved = localStorage.getItem('withinarts_cart') || localStorage.getItem('withinart_cart') || localStorage.getItem('rangrez_cart');
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       return [];
@@ -101,7 +95,7 @@ export default function App() {
   // Save to localStorage whenever state changes with safe quota protection
   useEffect(() => {
     try {
-      localStorage.setItem('withinart_paintings', JSON.stringify(paintings));
+      localStorage.setItem('withinarts_paintings', JSON.stringify(paintings));
     } catch (e) {
       console.warn("Could not save paintings to localStorage:", e);
     }
@@ -109,7 +103,7 @@ export default function App() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('withinart_story', JSON.stringify(storySteps));
+      localStorage.setItem('withinarts_story', JSON.stringify(storySteps));
     } catch (e) {
       console.warn("Could not save story to localStorage:", e);
     }
@@ -117,7 +111,7 @@ export default function App() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('withinart_info', JSON.stringify(studioInfo));
+      localStorage.setItem('withinarts_info', JSON.stringify(studioInfo));
     } catch (e) {
       console.warn("Could not save studio info to localStorage:", e);
     }
@@ -136,7 +130,7 @@ export default function App() {
         wallImage: (typeof item.wallImage === 'string' && item.wallImage.length > 50000) ? '' : item.wallImage,
         closeupImage: (typeof item.closeupImage === 'string' && item.closeupImage.length > 50000) ? '' : item.closeupImage,
       }));
-      localStorage.setItem('withinart_cart', JSON.stringify(lightweightCart));
+      localStorage.setItem('withinarts_cart', JSON.stringify(lightweightCart));
     } catch (e) {
       console.warn("Could not save cart to localStorage:", e);
     }
@@ -170,7 +164,7 @@ export default function App() {
         search.includes(SECRET_ADMIN_KEY);
 
       if (isAdminRequested) {
-        const isAuth = sessionStorage.getItem('withinart_studio_session') === 'authenticated';
+        const isAuth = sessionStorage.getItem('withinarts_studio_session') === 'authenticated' || sessionStorage.getItem('withinart_studio_session') === 'authenticated';
         if (isAuth) {
           setIsManagerOpen(true);
           setIsLoginModalOpen(false);
@@ -207,7 +201,7 @@ export default function App() {
   };
 
   const handleOpenOwnerPortal = () => {
-    const isAuth = sessionStorage.getItem('withinart_studio_session') === 'authenticated';
+    const isAuth = sessionStorage.getItem('withinarts_studio_session') === 'authenticated' || sessionStorage.getItem('withinart_studio_session') === 'authenticated';
     if (isAuth) {
       setIsManagerOpen(true);
       window.location.hash = SECRET_ADMIN_KEY;
@@ -225,8 +219,9 @@ export default function App() {
 
   const handleLockPortal = () => {
     try {
+      sessionStorage.removeItem('withinarts_studio_session');
       sessionStorage.removeItem('withinart_studio_session');
-    } catch (e) {}
+    } catch (e) { }
     setIsManagerOpen(false);
     if (window.location.hash.includes(SECRET_ADMIN_KEY)) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -476,11 +471,10 @@ export default function App() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm ${
-                    selectedCategory === cat
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm ${selectedCategory === cat
                       ? 'bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 text-white font-bold shadow-md shadow-sky-500/25'
                       : 'bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-950 border border-slate-200 hover:border-sky-300'
-                  }`}
+                    }`}
                 >
                   {cat}
                 </button>

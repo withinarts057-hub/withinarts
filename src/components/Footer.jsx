@@ -14,10 +14,10 @@ export function Footer({ studioInfo, onOpenManager }) {
           {/* Col 1: Brand & Origin */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <img src={resolveAssetUrl('/images/logo.png')} alt="Withinart Logo" className="h-10 sm:h-12 w-auto object-contain drop-shadow-md" />
+              <img src={resolveAssetUrl("/images/logo.png")} alt="Withinarts Logo" className="h-10 sm:h-12 w-auto object-contain drop-shadow-md" />
               <div>
                 <span className="font-cinzel text-xl font-bold tracking-wider text-white block">
-                  WITHINART
+                  WITHINARTS
                 </span>
                 <span className="text-[11px] text-amber-400 font-medium">
                   Faisalabad Handmade Fine Art Studio
@@ -70,7 +70,7 @@ export function Footer({ studioInfo, onOpenManager }) {
             </p>
 
             <a
-              href={`https://wa.me/${studioInfo?.whatsapp || '923007654321'}?text=${encodeURIComponent("Hello! I would like to discuss a custom artwork commission with Withinart.")}`}
+              href={`https://wa.me/${studioInfo?.whatsapp || '923264784663'}?text=${encodeURIComponent("Hello! I would like to discuss a custom artwork commission with Withinarts.")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-semibold text-emerald-300 transition-colors"
@@ -101,7 +101,7 @@ export function Footer({ studioInfo, onOpenManager }) {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
-            © {new Date().getFullYear()} Withinart. All handmade paintings protected by copyright.
+            © {new Date().getFullYear()} Withinarts. All handmade paintings protected by copyright.
           </div>
           <div className="flex items-center gap-1 text-slate-400">
             <span>Hand-painted with pride in</span>

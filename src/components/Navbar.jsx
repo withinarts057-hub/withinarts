@@ -48,17 +48,16 @@ export function Navbar({
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-2xl transition-all duration-300 group cursor-pointer ${
-            isScrolled
+          className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-2xl transition-all duration-300 group cursor-pointer ${isScrolled
               ? 'bg-white/95 backdrop-blur-xl border border-sky-100 shadow-lg shadow-slate-900/10 hover:shadow-xl scale-95'
               : 'bg-white/90 backdrop-blur-md border border-white/80 shadow-md shadow-slate-900/5 hover:bg-white'
-          }`}
-          title="WithinArt Studio"
+            }`}
+          title="WithinArts Studio"
         >
           {/* Logo */}
           <img
-            src={resolveAssetUrl('/images/logo.png')}
-            alt="Withinart Logo"
+            src={resolveAssetUrl("/images/logo.png")}
+            alt="Withinarts Logo"
             className="h-8 sm:h-9 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105 shrink-0"
           />
 
@@ -69,7 +68,7 @@ export function Navbar({
                 WITHIN
               </span>
               <span className="text-[9px] sm:text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white font-bold shadow-xs">
-                Art
+                Arts
               </span>
             </div>
             <span className="hidden md:flex text-[10px] text-slate-500 items-center gap-0.5 font-medium whitespace-nowrap">
@@ -85,11 +84,10 @@ export function Navbar({
         {/* Expandable Search Input Button */}
         <div className="relative flex items-center">
           <div
-            className={`flex items-center overflow-hidden transition-all duration-300 ease-out ${
-              isSearchOpen
+            className={`flex items-center overflow-hidden transition-all duration-300 ease-out ${isSearchOpen
                 ? 'w-48 xs:w-56 sm:w-72 px-3 py-1.5 bg-white/95 backdrop-blur-xl border border-sky-300 rounded-2xl shadow-xl shadow-slate-900/10'
                 : 'w-10 h-10 sm:w-11 sm:h-11 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-2xl justify-center hover:bg-white hover:border-sky-400 shadow-md shadow-slate-900/5 hover:scale-105 active:scale-95'
-            }`}
+              }`}
           >
             <button
               type="button"
@@ -151,7 +149,7 @@ export function Navbar({
           icon={<MessageCircle className="w-5 h-5 text-emerald-400" />}
           onClick={() => {
             window.open(
-              `https://wa.me/${studioInfo?.whatsapp || '923007654321'}?text=${encodeURIComponent("Hello WithinArt! I would like to inquire about ordering a custom handmade painting.")}`,
+              `https://wa.me/${studioInfo?.whatsapp || '923264784663'}?text=${encodeURIComponent("Hello WithinArts! I would like to inquire about ordering a custom handmade painting.")}`,
               '_blank'
             );
           }}

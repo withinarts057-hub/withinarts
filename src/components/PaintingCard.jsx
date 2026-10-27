@@ -15,8 +15,7 @@ export function PaintingCard({
   const [addedAnimation, setAddedAnimation] = useState(false);
 
   const showCloseup = viewMode === 'closeup' || (viewMode === 'auto' && isHovered);
-  const rawImage = showCloseup ? painting.closeupImage : painting.wallImage;
-  const currentImage = resolveAssetUrl(rawImage);
+  const currentImage = resolveAssetUrl(showCloseup ? painting.closeupImage : painting.wallImage);
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -27,8 +26,8 @@ export function PaintingCard({
 
   const handleWhatsAppOrder = (e) => {
     e.stopPropagation();
-    const msg = `Hello Withinart! I would like to order this original handmade painting:\n\n*Artwork:* ${painting.title}\n*Price:* Rs. ${painting.pricePKR.toLocaleString()} (PKR)\n\n✍️ *Custom Name/Text I want on the painting:* ________\n_(Please type the name or text you'd like hand-painted on this artwork above)_\n\nPlease confirm availability and delivery in your signature eco-friendly jute packaging.`;
-    window.open(`https://wa.me/${whatsappNumber || '923007654321'}?text=${encodeURIComponent(msg)}`, '_blank');
+    const msg = `Hello Withinarts! I would like to order this original handmade painting:\n\n*Artwork:* ${painting.title}\n*Price:* Rs. ${painting.pricePKR.toLocaleString()} (PKR)\n\n✍️ *Custom Name/Text I want on the painting:* ________\n_(Please type the name or text you'd like hand-painted on this artwork above)_\n\nPlease confirm availability and delivery in your signature eco-friendly jute packaging.`;
+    window.open(`https://wa.me/${whatsappNumber || '923264784663'}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const getBadgeStyle = (badge) => {

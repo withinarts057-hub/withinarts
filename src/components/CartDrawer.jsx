@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { X, Trash2, Plus, Minus, ShoppingBag, MessageCircle, ShieldCheck, PackageCheck, Sparkles, CheckCircle2, Loader2, Mail, PenLine } from 'lucide-react';
 import { LiquidMetalButton } from '@/components/ui/liquid-metal-button';
 import confetti from 'canvas-confetti';
+import { saveOrderToSupabase } from '@/lib/supabase';
+import { resolveAssetUrl } from '@/lib/utils';
 
 export function CartDrawer({
   isOpen,
@@ -44,9 +46,32 @@ export function CartDrawer({
       ? `\n\n✍️ *Custom Name/Text for Painting:* ${customer.customName.trim()}`
       : '';
 
-    let msg = `Hello Withinart!\nI would like to place an order for the following handmade artwork(s):\n\n${itemsText}\n\n*Total Amount:* Rs. ${totalPKR.toLocaleString()} PKR (~$${totalUSD} USD)${customLine}\n\n*Delivery Address:* ${customer.address ? `${customer.name}, ${customer.address}, ${customer.city} (${customer.phone})` : 'Kindly confirm delivery schedule and signature jute packaging.'}`;
+    let msg = `Hello Withinarts!\nI would like to place an order for the following handmade artwork(s):\n\n${itemsText}\n\n*Total Amount:* Rs. ${totalPKR.toLocaleString()} PKR (~$${totalUSD} USD)${customLine}\n\n*Delivery Address:* ${customer.address ? `${customer.name}, ${customer.address}, ${customer.city} (${customer.phone})` : 'Kindly confirm delivery schedule and signature jute packaging.'}`;
 
-    window.open(`https://wa.me/${whatsappNumber || '923007654321'}?text=${encodeURIComponent(msg)}`, '_blank');
+    // Auto-record order to Supabase
+    saveOrderToSupabase({
+      name: customer.name || 'WhatsApp Visitor',
+      phone: customer.phone || '',
+      city: customer.city || '',
+      address: customer.address || '',
+      customName: customer.customName?.trim() || '',
+      items: cartItems.map(it => ({
+        id: it.id,
+        title: it.title,
+        dimensions: it.dimensions,
+        woodFrame: it.woodFrame,
+        pricePKR: it.pricePKR,
+        qty: it.qty,
+        wallImage: it.wallImage
+      })),
+      totalPKR: totalPKR,
+      totalUSD: totalUSD,
+      orderType: 'whatsapp',
+      status: 'Pending',
+      notes: 'Customer initiated order via WhatsApp click'
+    }).catch(err => console.warn('Supabase WhatsApp order auto-save:', err));
+
+    window.open(`https://wa.me/${whatsappNumber || '923264784663'}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const handleDirectSubmit = async (e) => {
@@ -65,10 +90,34 @@ export function CartDrawer({
       )
       .join('\n');
 
-    const recipientEmail = studioInfo?.email || 'msaadzia44@gmail.com';
+    const recipientEmail = studioInfo?.email || 'withinarts057@gmail.com';
 
     try {
-      // Send order details to msaadzia44@gmail.com via FormSubmit AJAX API
+      // 1. Save directly into Supabase orders database
+      await saveOrderToSupabase({
+        name: customer.name,
+        phone: customer.phone,
+        email: customer.email,
+        city: customer.city,
+        address: customer.address,
+        customName: customer.customName.trim(),
+        items: cartItems.map(it => ({
+          id: it.id,
+          title: it.title,
+          dimensions: it.dimensions,
+          woodFrame: it.woodFrame,
+          pricePKR: it.pricePKR,
+          qty: it.qty,
+          wallImage: it.wallImage
+        })),
+        totalPKR: totalPKR,
+        totalUSD: totalUSD,
+        orderType: 'website',
+        status: 'Pending',
+        notes: `Website direct checkout submitted at ${new Date().toLocaleString()}`
+      });
+
+      // 2. Send order email to studio inbox via FormSubmit AJAX API
       await fetch(`https://formsubmit.co/ajax/${recipientEmail}`, {
         method: 'POST',
         headers: {
@@ -150,7 +199,7 @@ export function CartDrawer({
               </div>
               <h3 className="text-2xl font-cinzel font-bold text-slate-900">Order Confirmed!</h3>
               <p className="text-xs text-slate-600 max-w-xs leading-relaxed">
-                Thank you, <strong>{customer.name}</strong>! Your order details have been received and sent to our official studio email (<span className="text-sky-700 font-bold underline">{studioInfo?.email || 'msaadzia44@gmail.com'}</span>).
+                Thank you, <strong>{customer.name}</strong>! Your order details have been received by Withinarts Studio team.
               </p>
               <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium space-y-1 text-left">
                 <div className="font-bold flex items-center gap-1.5 text-amber-950">
@@ -299,7 +348,7 @@ export function CartDrawer({
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin text-white" />
-                    <span>Order Sending to Studio ({studioInfo?.email || 'msaadzia44@gmail.com'})...</span>
+                    <span>Sending Order to Studio...</span>
                   </>
                 ) : (
                   <>
@@ -318,7 +367,7 @@ export function CartDrawer({
                   className="p-3 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3"
                 >
                   <div className="w-20 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                    <img src={item.wallImage} alt={item.title} className="w-full h-full object-cover" />
+                    <img src={resolveAssetUrl(item.wallImage)} alt={item.title} className="w-full h-full object-cover" />
                   </div>
 
                   <div className="flex-1 min-w-0">

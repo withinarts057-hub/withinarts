@@ -1,13 +1,15 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { getStorageImageUrl } from "./supabase";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
 /**
- * Resolves static public asset URLs (like /images/logo.png) to respect
- * the current base URL (especially GitHub Pages /withinart/ subpath).
+ * Resolves static public asset URLs.
+ * Returns fast Supabase CDN URL, ensuring images load perfectly
+ * on GitHub Pages, local dev, custom domain, or anywhere.
  */
 export function resolveAssetUrl(url) {
   if (!url || typeof url !== 'string') return '';
@@ -19,10 +21,5 @@ export function resolveAssetUrl(url) {
   ) {
     return url;
   }
-  let clean = url.trim();
-  if (clean.startsWith('./')) clean = clean.slice(2);
-  if (clean.startsWith('/')) clean = clean.slice(1);
-  const base = import.meta.env.BASE_URL || './';
-  const prefix = base.endsWith('/') ? base : `${base}/`;
-  return `${prefix}${clean}`;
+  return getStorageImageUrl(url);
 }

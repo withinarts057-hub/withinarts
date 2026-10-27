@@ -31,8 +31,8 @@ export default function ShaderShowcase({
     : ["#000000", "#ffffff", "#06b6d4", "#f97316"];
 
   const handleWhatsApp = () => {
-    const phone = studioInfo?.whatsapp || "923007654321";
-    const text = encodeURIComponent("Hello WithinArt! I am interested in custom artwork from your studio.");
+    const phone = studioInfo?.whatsapp || "923264784663";
+    const text = encodeURIComponent("Hello WithinArts! I am interested in custom artwork from your studio.");
     window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
   };
 
@@ -217,7 +217,7 @@ export default function ShaderShowcase({
 
         {/* Atelier USPs Badges */}
         <motion.div
-          className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 w-full max-w-3xl mb-7"
+          className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 w-full max-w-3xl mb-4 sm:mb-5"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.45 }}
@@ -244,9 +244,9 @@ export default function ShaderShowcase({
           </div>
         </motion.div>
 
-        {/* Action CTA Buttons */}
+        {/* Action CTA Buttons — Positioned lower down */}
         <motion.div
-          className="flex items-center justify-center gap-3.5 flex-wrap"
+          className="flex items-center justify-center gap-3.5 sm:gap-5 flex-wrap mt-8 sm:mt-12 md:mt-16 pt-2 sm:pt-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.6 }}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Lens } from '@/components/ui/lens';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { X, ZoomIn, ShoppingBag, MessageCircle, ShieldCheck, TreePine, PackageCheck, Sparkles, Check } from 'lucide-react';
+import { resolveAssetUrl } from '@/lib/utils';
 
 export function PaintingDetailModal({
   painting,
@@ -31,11 +32,11 @@ export function PaintingDetailModal({
   };
 
   const handleWhatsApp = () => {
-    const msg = `Hello Withinart! I want to order this painting:\n\n*Painting:* ${painting.title}\n*Medium:* ${painting.medium}\n*Dimensions:* ${painting.dimensions}\n*Frame Wood:* ${painting.woodFrame}\n*Price:* Rs. ${painting.pricePKR.toLocaleString()} (PKR)\n\nPlease confirm shipping in signature Jute packaging to my address.`;
-    window.open(`https://wa.me/${whatsappNumber || '923007654321'}?text=${encodeURIComponent(msg)}`, '_blank');
+    const msg = `Hello Withinarts! I want to order this painting:\n\n*Painting:* ${painting.title}\n*Medium:* ${painting.medium}\n*Dimensions:* ${painting.dimensions}\n*Frame Wood:* ${painting.woodFrame}\n*Price:* Rs. ${painting.pricePKR.toLocaleString()} (PKR)\n\nPlease confirm shipping in signature Jute packaging to my address.`;
+    window.open(`https://wa.me/${whatsappNumber || '923264784663'}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const currentImg = activeTab === 'closeup' ? painting.closeupImage : painting.wallImage;
+  const currentImg = resolveAssetUrl(activeTab === 'closeup' ? painting.closeupImage : painting.wallImage);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-200">

@@ -3,8 +3,6 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
-  // Base path for GitHub Pages (https://codex-wolfers.github.io/withinart/)
-  base: '/withinart/',
   plugins: [react()],
   resolve: {
     alias: {
