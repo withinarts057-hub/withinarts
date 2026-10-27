@@ -39,8 +39,9 @@ export default function ShaderShowcase({
   return (
     <div
       ref={containerRef}
+      style={{ minHeight: '100vh', height: '100dvh' }}
       className={cn(
-        "relative h-[100dvh] min-h-[100dvh] w-full max-w-full overflow-hidden flex flex-col justify-between pt-16 sm:pt-24 pb-4 sm:pb-8",
+        "relative min-h-screen h-screen min-h-[100dvh] h-[100dvh] w-full max-w-full overflow-hidden flex flex-col justify-between pt-16 sm:pt-24 pb-4 sm:pb-6",
         isWhiteTheme ? "bg-white text-slate-900" : "bg-black text-white",
         className
       )}
