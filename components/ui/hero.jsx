@@ -159,7 +159,7 @@ export default function ShaderShowcase({
       </div>
 
       {/* Top spacer to ensure clear clearance below floating navbar */}
-      <div className="w-full shrink-0 h-4 sm:h-8" />
+      <div className="w-full shrink-0 h-1 sm:h-8" />
 
       {/* ── Main Hero Content (Vertically Centered in Fullscreen) ── */}
       <main className="relative z-20 max-w-5xl w-full mx-auto px-3 sm:px-6 my-auto text-center flex flex-col items-center justify-center shrink-0">
@@ -197,20 +197,20 @@ export default function ShaderShowcase({
           </span>
         </motion.h1>
 
-        {/* Subtitle */}
+        {/* Subtitle — Bold, slightly larger and highly legible on mobile */}
         <motion.p
-          className="text-[11px] xs:text-xs sm:text-base md:text-lg font-normal text-slate-700 max-w-xl mx-auto mb-2.5 sm:mb-5 leading-relaxed px-1"
+          className="text-xs sm:text-base md:text-lg font-medium sm:font-normal text-slate-800 sm:text-slate-700 max-w-xl mx-auto mb-3.5 sm:mb-5 leading-relaxed px-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
         >
           {studioInfo?.tagline || "Authentic handmade oil paintings, Sufi art, and sacred Arabic calligraphy."}{" "}
           Every piece is stretched on{" "}
-          <strong className="text-amber-900 font-bold bg-amber-100/90 px-1 sm:px-1.5 py-0.5 rounded-md shadow-xs">
+          <strong className="text-amber-950 font-bold bg-amber-100/90 px-1.5 py-0.5 rounded-md shadow-xs">
             solid seasoned rosewood
           </strong>{" "}
           and shipped in our signature{" "}
-          <strong className="text-amber-900 font-bold bg-amber-100/90 px-1 sm:px-1.5 py-0.5 rounded-md shadow-xs">
+          <strong className="text-amber-950 font-bold bg-amber-100/90 px-1.5 py-0.5 rounded-md shadow-xs">
             eco-friendly jute fabric
           </strong>{" "}
           across Pakistan and worldwide.
@@ -218,58 +218,60 @@ export default function ShaderShowcase({
 
         {/* Atelier USPs Badges */}
         <motion.div
-          className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 w-full max-w-2xl mb-3 sm:mb-5 px-1"
+          className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full max-w-2xl mb-3.5 sm:mb-5 px-1"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.45 }}
         >
-          <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white/90 border border-amber-200/70 backdrop-blur-md shadow-xs hover:border-emerald-400 transition-all">
-            <TreePine className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5 text-emerald-600 shrink-0" />
-            <span className="text-[9px] xs:text-[10px] sm:text-xs font-semibold text-slate-800">
+          <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white/90 border border-amber-200/70 backdrop-blur-md shadow-xs hover:border-emerald-400 transition-all">
+            <TreePine className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-emerald-600 shrink-0" />
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-800">
               Seasoned Rosewood Stretcher
             </span>
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white/90 border border-amber-200/70 backdrop-blur-md shadow-xs hover:border-amber-400 transition-all">
-            <Paintbrush className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5 text-amber-600 shrink-0" />
-            <span className="text-[9px] xs:text-[10px] sm:text-xs font-semibold text-slate-800">
+          <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white/90 border border-amber-200/70 backdrop-blur-md shadow-xs hover:border-amber-400 transition-all">
+            <Paintbrush className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-amber-600 shrink-0" />
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-800">
               Heavy 3D Palette Knife Impasto
             </span>
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white/90 border border-amber-200/70 backdrop-blur-md shadow-xs hover:border-rose-400 transition-all">
-            <PackageCheck className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5 text-rose-600 shrink-0" />
-            <span className="text-[9px] xs:text-[10px] sm:text-xs font-semibold text-slate-800">
+          <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white/90 border border-amber-200/70 backdrop-blur-md shadow-xs hover:border-rose-400 transition-all">
+            <PackageCheck className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-rose-600 shrink-0" />
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-800">
               Signature Eco Jute Packaging
             </span>
           </div>
         </motion.div>
 
-        {/* Action CTA Buttons — Sleek side-by-side or compact stack */}
+        {/* Action CTA Buttons — Stacked on Phone (WhatsApp on Top, Explore underneath), Side-by-Side on Laptop */}
         <motion.div
-          className="flex items-center justify-center gap-2 sm:gap-4 w-full max-w-sm sm:max-w-none mx-auto mt-2 sm:mt-6 px-1"
+          className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 w-full max-w-xs sm:max-w-none mx-auto mt-3 sm:mt-8 px-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.6 }}
         >
-          <motion.button
-            onClick={onExploreClick}
-            className="flex-1 sm:flex-initial px-4 sm:px-8 py-2.5 sm:py-3 rounded-full bg-slate-900 text-white font-semibold text-[11px] sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-xl hover:bg-slate-800 transition-all cursor-pointer border border-slate-700 hover:shadow-2xl hover:scale-[1.03] active:scale-[0.98] whitespace-nowrap"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-          >
-            <span>Explore Collection</span>
-            <ArrowDown className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-          </motion.button>
-
+          {/* Order via WhatsApp: Top on Phone (order-1), Right on Desktop (sm:order-2) */}
           <motion.button
             onClick={handleWhatsApp}
-            className="flex-1 sm:flex-initial px-4 sm:px-8 py-2.5 sm:py-3 rounded-full bg-white/95 text-slate-800 font-semibold text-[11px] sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 border border-amber-300/80 shadow-md hover:bg-white hover:border-emerald-500 transition-all cursor-pointer backdrop-blur-md hover:scale-[1.03] active:scale-[0.98] whitespace-nowrap"
+            className="order-1 sm:order-2 w-full sm:w-auto px-6 sm:px-8 py-3 rounded-full bg-white/95 text-slate-800 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 border border-amber-300/80 shadow-md hover:bg-white hover:border-emerald-500 transition-all cursor-pointer backdrop-blur-md hover:scale-[1.03] active:scale-[0.98] whitespace-nowrap"
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
           >
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>WhatsApp Order</span>
+            <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Order via WhatsApp</span>
+          </motion.button>
+
+          {/* Explore Art Collection: Bottom on Phone (order-2), Left on Desktop (sm:order-1) */}
+          <motion.button
+            onClick={onExploreClick}
+            className="order-2 sm:order-1 w-full sm:w-auto px-6 sm:px-8 py-3 rounded-full bg-slate-900 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xl hover:bg-slate-800 transition-all cursor-pointer border border-slate-700 hover:shadow-2xl hover:scale-[1.03] active:scale-[0.98] whitespace-nowrap"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+          >
+            <span>Explore Art Collection</span>
+            <ArrowDown className="w-4 h-4 text-amber-300 shrink-0" />
           </motion.button>
         </motion.div>
       </main>
