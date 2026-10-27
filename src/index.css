@@ -8,10 +8,25 @@
   --font-body: 'Plus Jakarta Sans', sans-serif;
 }
 
+html {
+  max-width: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-body);
   background-color: #f8fafc;
   color: #1e293b;
+  max-width: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+#root {
+  max-width: 100%;
+  width: 100%;
   overflow-x: hidden;
 }
 

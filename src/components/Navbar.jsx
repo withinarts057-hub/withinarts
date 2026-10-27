@@ -41,14 +41,14 @@ export function Navbar({
   return (
     <>
       {/* ── Top-Left: Brand Logo & Name Anchor (Clean, elegant, always accessible) ── */}
-      <div className="fixed top-4 left-4 sm:left-6 z-50">
+      <div className="fixed top-3 sm:top-4 left-3 sm:left-6 z-50">
         <a
           href="#"
           onClick={(e) => {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-2xl transition-all duration-300 group cursor-pointer ${isScrolled
+          className={`flex items-center gap-1.5 sm:gap-3 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-2xl transition-all duration-300 group cursor-pointer ${isScrolled
               ? 'bg-white/95 backdrop-blur-xl border border-sky-100 shadow-lg shadow-slate-900/10 hover:shadow-xl scale-95'
               : 'bg-white/90 backdrop-blur-md border border-white/80 shadow-md shadow-slate-900/5 hover:bg-white'
             }`}
@@ -58,16 +58,16 @@ export function Navbar({
           <img
             src={resolveAssetUrl("/images/logo.png")}
             alt="Withinarts Logo"
-            className="h-8 sm:h-9 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105 shrink-0"
+            className="h-7 sm:h-9 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105 shrink-0"
           />
 
           {/* Brand Name */}
           <div className="flex flex-col">
             <div className="flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
-              <span className="font-playfair text-base sm:text-lg md:text-xl font-bold tracking-wider text-slate-900 group-hover:text-sky-600 transition-colors">
+              <span className="font-playfair text-sm sm:text-lg md:text-xl font-bold tracking-wider text-slate-900 group-hover:text-sky-600 transition-colors">
                 WITHIN
               </span>
-              <span className="text-[9px] sm:text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white font-bold shadow-xs">
+              <span className="text-[8px] sm:text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white font-bold shadow-xs">
                 Arts
               </span>
             </div>
@@ -80,13 +80,13 @@ export function Navbar({
       </div>
 
       {/* ── Top-Right: Search & Cart Controls Anchor ── */}
-      <div className="fixed top-4 right-4 sm:right-6 z-50 flex items-center gap-2">
+      <div className="fixed top-3 sm:top-4 right-3 sm:right-6 z-50 flex items-center gap-1.5 sm:gap-2">
         {/* Expandable Search Input Button */}
         <div className="relative flex items-center">
           <div
             className={`flex items-center overflow-hidden transition-all duration-300 ease-out ${isSearchOpen
-                ? 'w-48 xs:w-56 sm:w-72 px-3 py-1.5 bg-white/95 backdrop-blur-xl border border-sky-300 rounded-2xl shadow-xl shadow-slate-900/10'
-                : 'w-10 h-10 sm:w-11 sm:h-11 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-2xl justify-center hover:bg-white hover:border-sky-400 shadow-md shadow-slate-900/5 hover:scale-105 active:scale-95'
+                ? 'w-44 xs:w-52 sm:w-72 px-2.5 sm:px-3 py-1.5 bg-white/95 backdrop-blur-xl border border-sky-300 rounded-2xl shadow-xl shadow-slate-900/10'
+                : 'w-9 h-9 sm:w-11 sm:h-11 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-2xl justify-center hover:bg-white hover:border-sky-400 shadow-md shadow-slate-900/5 hover:scale-105 active:scale-95'
               }`}
           >
             <button
@@ -95,7 +95,7 @@ export function Navbar({
               className="text-slate-600 hover:text-sky-600 transition-colors shrink-0 cursor-pointer"
               title={isSearchOpen ? "Close Search" : "Open Search"}
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
             {isSearchOpen && (
@@ -130,20 +130,20 @@ export function Navbar({
         </div>
 
         {/* Cart Drawer Trigger with LiquidMetalButton */}
-        <div className="rounded-2xl shadow-md shadow-slate-900/5 hover:shadow-xl transition-shadow">
+        <div className="rounded-2xl shadow-md shadow-slate-900/5 hover:shadow-xl transition-shadow shrink-0">
           <LiquidMetalButton
             label="Cart"
-            icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
+            icon={<ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400" />}
             badge={cartCount > 0 ? cartCount : undefined}
             onClick={onOpenCart}
-            width={cartCount > 0 ? 108 : 92}
-            height={40}
+            width={cartCount > 0 ? 98 : 86}
+            height={38}
           />
         </div>
       </div>
 
       {/* ── Floating WhatsApp Action (Bottom-Right) ── */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-5 sm:bottom-6 right-3 sm:right-6 z-50">
         <LiquidMetalButton
           viewMode="icon"
           icon={<MessageCircle className="w-5 h-5 text-emerald-400" />}
@@ -153,8 +153,8 @@ export function Navbar({
               '_blank'
             );
           }}
-          width={48}
-          height={48}
+          width={46}
+          height={46}
         />
       </div>
     </>
