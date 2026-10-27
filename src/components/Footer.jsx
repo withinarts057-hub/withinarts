@@ -10,7 +10,7 @@ export function Footer({ studioInfo, onOpenManager }) {
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
           {/* Col 1: Brand & Origin */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -78,23 +78,6 @@ export function Footer({ studioInfo, onOpenManager }) {
               <MessageCircle className="w-4 h-4 text-emerald-400" />
               <span>Chat with Studio Master</span>
             </a>
-          </div>
-
-          {/* Col 4: Studio Manager Access */}
-          <div className="space-y-3">
-            <h4 className="font-playfair font-bold text-sm text-amber-300 tracking-wider uppercase">
-              Owner Portal
-            </h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Studio Management: Add new paintings, adjust prices, and customize story content.
-            </p>
-
-            <button
-              onClick={onOpenManager}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-sky-500/20 hover:from-amber-500/30 hover:to-sky-500/30 border border-amber-400/40 text-xs font-bold text-amber-200 hover:text-white transition-all w-full text-center flex items-center justify-center gap-2 shadow-lg cursor-pointer"
-            >
-              <span>⚙️ Open Owner Portal</span>
-            </button>
           </div>
         </div>
 

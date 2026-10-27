@@ -14,8 +14,7 @@ import {
   Check,
   Palette,
   MapPin,
-  CheckCircle2,
-  X
+  CheckCircle2
 } from 'lucide-react';
 import { resolveAssetUrl } from '@/lib/utils';
 
@@ -33,7 +32,6 @@ export function PaintingDetailPage({
   const [zoomFactor, setZoomFactor] = useState(2.6);
   const [isLensHovering, setIsLensHovering] = useState(false);
   const [addedAnimation, setAddedAnimation] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Scroll to top when this page opens
   useEffect(() => {
@@ -151,37 +149,24 @@ export function PaintingDetailPage({
               </button>
             </div>
 
-            {/* Lens Zoom Level Selector & Fullscreen Button */}
-            <div className="flex items-center gap-2">
-              {activeView === 'closeup' && (
-                <div className="flex items-center gap-1.5 text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
-                  <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Zoom:</span>
-                  {[1.8, 2.6, 3.4].map((z) => (
-                    <button
-                      key={z}
-                      onClick={() => setZoomFactor(z)}
-                      className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${zoomFactor === z
-                          ? 'bg-sky-100 text-sky-800'
-                          : 'text-slate-500 hover:text-slate-900'
-                        }`}
-                    >
-                      {z}x
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Fullscreen HD Review Button */}
-              <button
-                onClick={() => setIsFullscreen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
-                title="Fullscreen HD Review"
-              >
-                <Maximize2 className="w-3.5 h-3.5 text-sky-600" />
-                <span className="hidden sm:inline">Fullscreen HD</span>
-                <span className="sm:hidden">HD View</span>
-              </button>
-            </div>
+            {/* Lens Zoom Level Selector */}
+            {activeView === 'closeup' && (
+              <div className="flex items-center gap-1.5 text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
+                <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Zoom:</span>
+                {[1.8, 2.6, 3.4].map((z) => (
+                  <button
+                    key={z}
+                    onClick={() => setZoomFactor(z)}
+                    className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${zoomFactor === z
+                        ? 'bg-sky-100 text-sky-800'
+                        : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                  >
+                    {z}x
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Central Large Painting Canvas with Aceternity Lens (Square 1:1, Zero Cropping) */}
@@ -204,15 +189,6 @@ export function PaintingDetailPage({
                 />
               </div>
             </Lens>
-
-            {/* Quick Fullscreen button in top right of canvas */}
-            <button
-              onClick={() => setIsFullscreen(true)}
-              className="absolute top-3.5 right-3.5 z-20 p-2 rounded-xl bg-white/90 hover:bg-white text-slate-700 hover:text-sky-600 border border-slate-200/90 shadow-md backdrop-blur-md transition-all active:scale-95 cursor-pointer"
-              title="Open Fullscreen HD Review"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
 
             {/* Bottom Floating Hint Overlay */}
             <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 flex items-center justify-between pointer-events-none z-20 gap-2">
@@ -438,99 +414,6 @@ export function PaintingDetailPage({
           </section>
         )}
       </main>
-
-      {/* ── Fullscreen HD Art Review Lightbox (Mobile & Desktop) ── */}
-      {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-2xl flex flex-col justify-between p-3 sm:p-6 select-none animate-in fade-in duration-200">
-          {/* Top Bar: Title, Switcher, and Close */}
-          <div className="flex items-center justify-between gap-3 w-full max-w-6xl mx-auto py-2 z-10">
-            <div className="flex flex-col">
-              <h2 className="text-white font-playfair font-bold text-base sm:text-xl truncate max-w-[200px] sm:max-w-md">
-                {painting.title}
-              </h2>
-              <span className="text-slate-400 text-xs">
-                {painting.dimensions} • {painting.woodFrame}
-              </span>
-            </div>
-
-            {/* Quick Switcher inside Fullscreen */}
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">
-              <button
-                onClick={() => setActiveView('closeup')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  activeView === 'closeup'
-                    ? 'bg-sky-500 text-white shadow-md'
-                    : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                Macro Texture
-              </button>
-              <button
-                onClick={() => setActiveView('wall')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  activeView === 'wall'
-                    ? 'bg-sky-500 text-white shadow-md'
-                    : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                Wall View
-              </button>
-            </div>
-
-            {/* Close Button */}
-            <button
-              onClick={() => setIsFullscreen(false)}
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer active:scale-95"
-              title="Close Fullscreen"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Center HD Artwork Viewport */}
-          <div className="flex-1 flex items-center justify-center relative w-full max-w-5xl mx-auto overflow-hidden p-2 sm:p-6 my-auto">
-            <img
-              src={currentImg}
-              alt={painting.title}
-              className="max-w-full max-h-[72vh] object-contain drop-shadow-2xl rounded-2xl"
-            />
-          </div>
-
-          {/* Bottom Bar: Quick Order & Quality Stamp */}
-          <div className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-white/10 z-10">
-            <span className="text-slate-400 text-[11px] sm:text-xs text-center sm:text-left">
-              ✨ 100% Original Hand-Stretched Oil on Canvas • Signature Eco Jute Packaging
-            </span>
-
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
-              <button
-                onClick={handleAdd}
-                className="flex-1 sm:flex-initial py-2.5 px-4 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-              >
-                {addedAnimation ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400">Added to Bag</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-3.5 h-3.5 text-sky-400" />
-                    <span>Add to Bag</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={handleWhatsAppOrder}
-                className="flex-1 sm:flex-initial py-2.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30 transition-all cursor-pointer"
-              >
-                <MessageCircle className="w-3.5 h-3.5" />
-                <span>Order via WhatsApp</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

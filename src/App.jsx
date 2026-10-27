@@ -182,7 +182,10 @@ export default function App() {
         rawPath.includes(SECRET_ADMIN_KEY) ||
         search.includes(SECRET_ADMIN_KEY) ||
         path.startsWith('/admin') ||
-        hash.startsWith('#admin');
+        path.startsWith('admin') ||
+        hash.startsWith('#admin') ||
+        hash.startsWith('#/admin') ||
+        search.includes('admin');
 
       if (isAdminRequested) {
         const isAuth = sessionStorage.getItem('withinarts_studio_session') === 'authenticated';
