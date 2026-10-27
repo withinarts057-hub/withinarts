@@ -323,15 +323,10 @@ export function PaintingDetailPage({
                   Rs. {(Number(painting.pricePKR) || 0).toLocaleString()}
                 </p>
               </div>
-              <div className="space-y-1 pt-1 text-[11px] text-slate-700">
-                <p className="flex items-center gap-1 text-emerald-800 font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Faisalabad: Free Delivery (COD & Advance) • 48 Hours</span>
-                </p>
-                <p className="text-slate-500 text-[10px] pl-4.5">
-                  Other Cities: Free on Advance (COD +Rs. 250) • 4–7 Days
-                </p>
-              </div>
+              <p className="text-xs text-emerald-700 font-semibold flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Free Safe Shipping on Advance Orders Across Pakistan
+              </p>
             </div>
           </div>
 

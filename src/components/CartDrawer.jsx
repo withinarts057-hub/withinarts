@@ -19,14 +19,11 @@ import {
   Phone,
   User,
   FileText,
-  AlertCircle,
   Truck,
   CreditCard,
-  Building2,
   ArrowRight,
   Check
 } from 'lucide-react';
-import { LiquidMetalButton } from '@/components/ui/liquid-metal-button';
 import confetti from 'canvas-confetti';
 import { saveOrderToSupabase } from '@/lib/supabase';
 import { resolveAssetUrl } from '@/lib/utils';
@@ -44,19 +41,14 @@ export function CartDrawer({
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
-  const [cityType, setCityType] = useState('faisalabad'); // 'faisalabad' | 'outside'
   const [paymentMethod, setPaymentMethod] = useState('cod'); // 'cod' | 'advance'
-  const [customNameRequiredAlert, setCustomNameRequiredAlert] = useState(false);
 
   const [customer, setCustomer] = useState({
     name: '',
-    email: '',
     phone: '',
-    city: 'Faisalabad',
-    outsideCityName: '',
+    city: '',
     address: '',
     customName: '',
-    notes: 'Please pack carefully in signature jute wrap with wax seal.'
   });
 
   if (!isOpen) return null;
@@ -66,12 +58,13 @@ export function CartDrawer({
     (it) => it.isCustomizable || it.id === 'wood-slice-3' || it.id === 'wood-slice-5'
   );
 
-  // Delivery and pricing calculations
-  const isFaisalabad = cityType === 'faisalabad';
-  const effectiveCity = isFaisalabad ? 'Faisalabad' : (customer.outsideCityName.trim() || 'Outside Faisalabad');
+  // Behind-the-scenes detection of Faisalabad
+  const cityClean = (customer.city || '').trim().toLowerCase();
+  const isFaisalabad = cityClean.includes('faisalabad') || cityClean === 'fsd';
 
-  // Faisalabad: Free delivery for both COD and Advance (Rs. 0)
-  // Outside: Free delivery on Advance; COD adds Rs. 250
+  // Shipping calculation:
+  // - If Faisalabad: Delivery charges = 0 (silently applied without drawing attention)
+  // - Outside: Free on Advance, Rs. 250 on COD
   const shippingFee = isFaisalabad ? 0 : (paymentMethod === 'advance' ? 0 : 250);
   const deliveryTime = isFaisalabad ? '48 Hours (48 Ghantay)' : '4 to 7 Business Days (4–7 Din)';
 
@@ -79,24 +72,18 @@ export function CartDrawer({
   const grandTotalPKR = subtotalPKR + shippingFee;
   const grandTotalUSD = Math.round(grandTotalPKR / 278);
 
-  // 50% advance requirement for customizable paintings
+  // 50% advance for customizable paintings
   const advanceRequiredPKR = hasCustomizable
     ? Math.round(grandTotalPKR * 0.5)
     : (paymentMethod === 'advance' ? grandTotalPKR : 0);
   const balanceDuePKR = grandTotalPKR - advanceRequiredPKR;
 
-  // Trigger checkout view with validation on custom name if customizable item exists
+  // Proceed to Checkout
   const handleProceedToCheckout = () => {
-    if (hasCustomizable && !customer.customName.trim()) {
-      setCustomNameRequiredAlert(true);
-      setShowCheckoutForm(true);
-      return;
-    }
-    setCustomNameRequiredAlert(false);
     setShowCheckoutForm(true);
   };
 
-  // WhatsApp order initiator
+  // WhatsApp order
   const handleWhatsAppOrder = (finalReceipt = null) => {
     if (cartItems.length === 0 && !finalReceipt) return;
 
@@ -104,50 +91,45 @@ export function CartDrawer({
     const cust = finalReceipt ? finalReceipt.customer : customer;
     const sFee = finalReceipt ? finalReceipt.shippingFee : shippingFee;
     const gTotal = finalReceipt ? finalReceipt.grandTotalPKR : grandTotalPKR;
-    const isFsd = finalReceipt ? finalReceipt.isFaisalabad : isFaisalabad;
     const dTime = finalReceipt ? finalReceipt.deliveryTime : deliveryTime;
     const hasCust = finalReceipt ? finalReceipt.hasCustomizable : hasCustomizable;
     const adv = finalReceipt ? finalReceipt.advanceRequiredPKR : advanceRequiredPKR;
     const bal = finalReceipt ? finalReceipt.balanceDuePKR : balanceDuePKR;
     const customTxt = (finalReceipt ? finalReceipt.customName : customer.customName).trim();
-    const cityDisplay = finalReceipt ? finalReceipt.customer.city : effectiveCity;
-    const pMethod = finalReceipt ? finalReceipt.paymentMethod : paymentMethod;
+    const cityDisplay = cust.city || 'Pakistan';
 
     const itemsText = items
       .map(
         (it, idx) =>
-          `${idx + 1}. *${it.title}* (${it.dimensions})\n   Medium: Acrylic on Wood Slice\n   Qty: ${it.qty} × Rs. ${it.pricePKR.toLocaleString()} = Rs. ${(it.pricePKR * it.qty).toLocaleString()}${
+          `${idx + 1}. *${it.title}* (${it.dimensions})\n   Qty: ${it.qty} × Rs. ${it.pricePKR.toLocaleString()} = Rs. ${(it.pricePKR * it.qty).toLocaleString()}${
             it.isCustomizable || it.id === 'wood-slice-3' || it.id === 'wood-slice-5'
-              ? `\n   ✍️ *Customized Name/Text:* ${customTxt || 'To be specified'}`
+              ? `\n   ✍️ *Custom Name/Text:* ${customTxt || 'As discussed'}`
               : ''
           }`
       )
       .join('\n\n');
 
-    let msg = `🎨 *WITHINARTS ATELIER - OFFICIAL ARTWORK ORDER*\n` +
+    let msg = `🎨 *WITHINARTS - ARTWORK ORDER*\n` +
       `--------------------------------\n` +
       (finalReceipt ? `*Receipt No:* ${finalReceipt.receiptNumber}\n` : '') +
-      `*Customer:* ${cust.name || 'Art Collector'}\n` +
-      `*Phone:* ${cust.phone || 'N/A'}\n` +
-      `*City:* ${cityDisplay} (${isFsd ? 'Faisalabad' : 'Outside Faisalabad'})\n` +
+      `*Customer Name:* ${cust.name || 'Art Collector'}\n` +
+      `*Phone Number:* ${cust.phone || 'N/A'}\n` +
+      `*City:* ${cityDisplay}\n` +
       `*Address:* ${cust.address || 'Address provided on WhatsApp'}\n` +
-      `*Payment Method:* ${pMethod === 'advance' ? 'Full Advance Payment' : 'Cash on Delivery (COD)'}\n\n` +
-      `*Selected Acrylic Paintings:*\n${itemsText}\n\n` +
+      `*Payment:* ${finalReceipt ? (finalReceipt.paymentMethod === 'advance' ? 'Advance Payment' : 'Cash on Delivery') : (paymentMethod === 'advance' ? 'Advance Payment' : 'Cash on Delivery')}\n\n` +
+      `*Selected Acrylic Artworks:*\n${itemsText}\n\n` +
       `--------------------------------\n` +
       `*Subtotal:* Rs. ${subtotalPKR.toLocaleString()} PKR\n` +
-      `*Delivery Area:* ${isFsd ? 'Faisalabad (Local Delivery)' : `Outside Faisalabad (${cityDisplay})`}\n` +
-      `*Delivery Charges:* ${sFee === 0 ? 'FREE (Rs. 0)' : `Rs. ${sFee} PKR`}\n` +
-      `*Delivery Timeframe:* ${dTime}\n` +
-      `*Total Amount:* Rs. ${gTotal.toLocaleString()} PKR (~$${grandTotalUSD} USD)\n`;
+      `*Delivery Charges:* Rs. ${sFee.toLocaleString()} PKR\n` +
+      `*Estimated Delivery:* ${dTime}\n` +
+      `*Total Amount:* Rs. ${gTotal.toLocaleString()} PKR\n`;
 
     if (hasCust) {
-      msg += `\n⚠️ *Customizable Painting Deposit (50% Advance):*\n` +
+      msg += `\n⚠️ *Custom Artwork Notice:*\n` +
         `• 50% Advance Required: Rs. ${adv.toLocaleString()} PKR\n` +
-        `• Remaining Balance on Delivery: Rs. ${bal.toLocaleString()} PKR\n` +
-        `• Payment details (JazzCash/EasyPaisa/Bank) to be sent to ${cust.phone || 'my number'}.\n`;
+        `• Balance on Delivery: Rs. ${bal.toLocaleString()} PKR\n` +
+        `• Payment instructions (JazzCash/EasyPaisa/Bank) to be sent to ${cust.phone || 'my number'}.\n`;
     }
-
-    msg += `\n*Packaging:* Signature Eco-Friendly Jute Burlap with Wax Seal & Stand`;
 
     // Auto-record order to Supabase
     saveOrderToSupabase({
@@ -170,36 +152,30 @@ export function CartDrawer({
       totalUSD: grandTotalUSD,
       orderType: 'whatsapp',
       status: 'Pending',
-      notes: `WhatsApp order click. Delivery: ${dTime}. Shipping: Rs. ${sFee}. Advance req: Rs. ${adv}.`
-    }).catch(err => console.warn('Supabase WhatsApp order auto-save:', err));
+      notes: `WhatsApp Order. Delivery: ${dTime}. Shipping: Rs. ${sFee}.`
+    }).catch(err => console.warn('Supabase WhatsApp order save:', err));
 
     window.open(`https://wa.me/${whatsappNumber || '923264784663'}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  // Direct checkout form submission
+  // Direct checkout submit
   const handleDirectSubmit = async (e) => {
     e.preventDefault();
 
-    if (!customer.name.trim() || !customer.phone.trim() || !customer.address.trim()) {
-      alert("Please provide your name, phone, and complete delivery address.");
-      return;
-    }
-
-    if (!isFaisalabad && !customer.outsideCityName.trim()) {
-      alert("Please enter your delivery city name.");
+    if (!customer.name.trim() || !customer.phone.trim() || !customer.city.trim() || !customer.address.trim()) {
+      alert("Please enter your name, phone, city, and delivery address.");
       return;
     }
 
     if (hasCustomizable && !customer.customName.trim()) {
-      setCustomNameRequiredAlert(true);
-      alert("Please enter the Custom Name / Text to write on your customized painting.");
+      alert("Please enter the custom name / text to write on your painting.");
       return;
     }
 
     setIsSubmitting(true);
 
     const generatedReceiptNo = `WA-${Math.floor(100000 + Math.random() * 900000)}`;
-    const finalCity = effectiveCity;
+    const finalCity = customer.city.trim();
 
     const receipt = {
       receiptNumber: generatedReceiptNo,
@@ -212,7 +188,6 @@ export function CartDrawer({
       }),
       customer: {
         name: customer.name.trim(),
-        email: customer.email.trim(),
         phone: customer.phone.trim(),
         city: finalCity,
         address: customer.address.trim()
@@ -223,7 +198,6 @@ export function CartDrawer({
       shippingFee,
       grandTotalPKR,
       grandTotalUSD,
-      isFaisalabad,
       deliveryTime,
       paymentMethod,
       hasCustomizable,
@@ -245,12 +219,11 @@ export function CartDrawer({
     const recipientEmail = studioInfo?.email || 'withinarts057@gmail.com';
 
     try {
-      // 1. Save directly into Supabase orders database
+      // 1. Save directly into Supabase orders
       await saveOrderToSupabase({
         orderNumber: generatedReceiptNo,
         name: customer.name.trim(),
         phone: customer.phone.trim(),
-        email: customer.email.trim(),
         city: finalCity,
         address: customer.address.trim(),
         customName: customer.customName.trim(),
@@ -268,10 +241,10 @@ export function CartDrawer({
         totalUSD: grandTotalUSD,
         orderType: 'website',
         status: 'Pending',
-        notes: `Receipt #${generatedReceiptNo}. Delivery: ${deliveryTime}. City: ${finalCity}. Shipping: Rs. ${shippingFee}. Payment: ${paymentMethod}. Advance 50%: Rs. ${advanceRequiredPKR}. Balance: Rs. ${balanceDuePKR}.`
+        notes: `Receipt #${generatedReceiptNo}. Delivery: ${deliveryTime}. City: ${finalCity}. Shipping: Rs. ${shippingFee}. Payment: ${paymentMethod}. Advance: Rs. ${advanceRequiredPKR}. Balance: Rs. ${balanceDuePKR}.`
       });
 
-      // 2. Send order email to studio inbox via FormSubmit AJAX API
+      // 2. Send email via FormSubmit AJAX
       await fetch(`https://formsubmit.co/ajax/${recipientEmail}`, {
         method: 'POST',
         headers: {
@@ -285,19 +258,16 @@ export function CartDrawer({
           'Receipt Number': generatedReceiptNo,
           'Customer Name': customer.name,
           'Phone / WhatsApp': customer.phone,
-          'Customer Email': customer.email || 'Not Provided',
-          'Delivery City': finalCity,
+          'City': finalCity,
           'Delivery Address': customer.address,
-          'Delivery Area': isFaisalabad ? 'Faisalabad Local (48 Hours Delivery)' : `Outside Faisalabad (${finalCity} - 4 to 7 Days)`,
-          'Shipping Fee': shippingFee === 0 ? 'FREE (Rs. 0)' : `Rs. ${shippingFee} PKR`,
-          'Payment Method': paymentMethod === 'advance' ? 'Full Advance' : 'Cash on Delivery',
-          '✍️ Custom Name/Text for Painting': customer.customName.trim() || 'N/A (Standard Piece)',
-          '50% Advance Required': hasCustomizable ? `Rs. ${advanceRequiredPKR.toLocaleString()} PKR (Send details to ${customer.phone})` : 'N/A',
+          'Delivery Charges': `Rs. ${shippingFee} PKR`,
+          'Delivery Timeframe': deliveryTime,
+          'Payment Method': paymentMethod === 'advance' ? 'Advance Payment' : 'Cash on Delivery',
+          'Custom Name / Text': customer.customName.trim() || 'Standard Piece',
+          '50% Advance Required': hasCustomizable ? `Rs. ${advanceRequiredPKR.toLocaleString()} PKR (Message to ${customer.phone})` : 'N/A',
           'Remaining Balance on Delivery': `Rs. ${balanceDuePKR.toLocaleString()} PKR`,
           'Ordered Paintings': itemsSummary,
-          'Subtotal': `Rs. ${subtotalPKR.toLocaleString()} PKR`,
           'Grand Total': `Rs. ${grandTotalPKR.toLocaleString()} PKR`,
-          'Packaging Requirement': 'Signature Eco Jute Burlap with Wax Seal & Stand',
           'Order Submission Time': new Date().toLocaleString()
         })
       });
@@ -306,14 +276,12 @@ export function CartDrawer({
     } finally {
       setIsSubmitting(false);
 
-      // Trigger celebration confetti
       confetti({
-        particleCount: 120,
-        spread: 80,
+        particleCount: 80,
+        spread: 70,
         origin: { y: 0.6 }
       });
 
-      // Show the Receipt Screen
       setReceiptData(receipt);
     }
   };
@@ -325,224 +293,172 @@ export function CartDrawer({
     onClose();
   };
 
-  const handlePrintReceipt = () => {
-    window.print();
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-xl h-full bg-white border-l border-slate-200 shadow-2xl flex flex-col text-slate-900"
+        className="relative w-full max-w-md h-full bg-white border-l border-slate-200 shadow-2xl flex flex-col text-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shadow-sm">
-              {receiptData ? <FileText className="w-5 h-5 text-emerald-600" /> : <ShoppingBag className="w-5 h-5" />}
+        <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center">
+              {receiptData ? <FileText className="w-4 h-4 text-emerald-600" /> : <ShoppingBag className="w-4 h-4" />}
             </div>
             <div>
-              <h3 className="font-cinzel font-bold text-base sm:text-lg text-slate-900">
+              <h3 className="font-cinzel font-bold text-sm text-slate-900 leading-tight">
                 {receiptData ? 'Order Receipt Slip' : 'Your Art Bag'}
               </h3>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-[11px] text-slate-500">
                 {receiptData
                   ? `Receipt #${receiptData.receiptNumber}`
-                  : `${cartItems.length} ${cartItems.length === 1 ? 'acrylic painting' : 'acrylic paintings'} selected`}
+                  : `${cartItems.length} ${cartItems.length === 1 ? 'painting' : 'paintings'}`}
               </span>
             </div>
           </div>
 
           <button
             onClick={receiptData ? handleFinishAndClose : onClose}
-            className="w-9 h-9 rounded-full bg-slate-200/70 hover:bg-slate-200 border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-full bg-slate-200/80 hover:bg-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
             title="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
           {/* ============================================================ */}
-          {/* 1. RECEIPT VIEW (Shown immediately after order form submission) */}
+          {/* 1. RECEIPT SLIP VIEW                                         */}
           {/* ============================================================ */}
           {receiptData ? (
-            <div className="space-y-4 print:p-0">
-              {/* Receipt Header Badge */}
-              <div className="text-center p-4 rounded-3xl bg-gradient-to-br from-emerald-50 via-teal-50 to-sky-50 border-2 border-emerald-200/80 shadow-sm relative overflow-hidden">
-                <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-2">
-                  <Check className="w-6 h-6 stroke-[3]" />
+            <div className="space-y-3">
+              {/* Slip Header */}
+              <div className="text-center p-3 rounded-2xl bg-emerald-50 border border-emerald-200">
+                <div className="w-8 h-8 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center mb-1">
+                  <Check className="w-4 h-4 stroke-[3]" />
                 </div>
-                <span className="inline-block px-3 py-1 rounded-full bg-emerald-600 text-white font-bold text-[11px] tracking-wide mb-1">
-                  ORDER CONFIRMED & SLIP GENERATED
-                </span>
-                <h4 className="font-cinzel font-bold text-xl text-slate-900">
+                <h4 className="font-cinzel font-bold text-base text-slate-900">
                   Withinarts Studio Receipt
                 </h4>
-                <p className="text-xs text-slate-600">
-                  Receipt No: <strong>{receiptData.receiptNumber}</strong> • {receiptData.date}
+                <p className="text-[11px] text-slate-500">
+                  #{receiptData.receiptNumber} • {receiptData.date}
                 </p>
               </div>
 
-              {/* Customer & Delivery Summary Card */}
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-sky-600" />
-                    Customer & Destination
-                  </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-sky-100 text-sky-800">
-                    {receiptData.isFaisalabad ? 'Faisalabad (Local)' : 'Outside Faisalabad'}
-                  </span>
+              {/* Customer & Destination Summary */}
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Customer:</span>
+                  <strong className="text-slate-800">{receiptData.customer.name}</strong>
                 </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <span className="text-[11px] text-slate-400 block">Collector Name</span>
-                    <strong className="text-slate-800">{receiptData.customer.name}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[11px] text-slate-400 block">Contact Phone</span>
-                    <strong className="text-slate-800">{receiptData.customer.phone}</strong>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-[11px] text-slate-400 block">Delivery Address</span>
-                    <span className="text-slate-700 font-medium">
-                      {receiptData.customer.address}, {receiptData.customer.city}
-                    </span>
-                  </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Phone:</span>
+                  <strong className="text-slate-800">{receiptData.customer.phone}</strong>
                 </div>
-
-                {/* Delivery Time Box */}
-                <div className="p-3 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <Truck className="w-4 h-4 text-sky-600" />
-                    <div>
-                      <span className="text-[10px] text-sky-700 font-bold uppercase block">Delivery Timeframe</span>
-                      <strong className="text-sky-950 font-bold">{receiptData.deliveryTime}</strong>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-lg bg-white border border-sky-200 text-sky-800 font-bold text-[11px]">
-                    {receiptData.shippingFee === 0 ? 'FREE DELIVERY' : `Rs. ${receiptData.shippingFee}`}
-                  </span>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">City:</span>
+                  <strong className="text-slate-800">{receiptData.customer.city}</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Address:</span>
+                  <span className="text-slate-700 text-right max-w-[200px] truncate">{receiptData.customer.address}</span>
+                </div>
+                <div className="flex justify-between border-t border-slate-200 pt-1.5">
+                  <span className="text-slate-500">Estimated Delivery:</span>
+                  <strong className="text-sky-800">{receiptData.deliveryTime}</strong>
                 </div>
               </div>
 
-              {/* Ordered Items Table */}
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
-                  <ShoppingBag className="w-3.5 h-3.5 text-sky-600" />
-                  Ordered Acrylic Artworks
+              {/* Items List */}
+              <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-2 text-xs">
+                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block border-b border-slate-100 pb-1">
+                  Ordered Paintings
                 </span>
-
-                <div className="divide-y divide-slate-100">
+                <div className="space-y-1.5 divide-y divide-slate-100">
                   {receiptData.items.map((it) => (
-                    <div key={it.id} className="py-2.5 flex items-start justify-between gap-3 text-xs">
+                    <div key={it.id} className="pt-1.5 first:pt-0 flex justify-between items-start gap-2">
                       <div className="min-w-0">
-                        <strong className="text-slate-900 block truncate">{it.title}</strong>
-                        <span className="text-[11px] text-slate-500 block">
-                          {it.dimensions} • Natural Wood Slice & Clear Stand
+                        <strong className="text-slate-800 text-xs block truncate">{it.title}</strong>
+                        <span className="text-[10px] text-slate-500 block">
+                          Qty: {it.qty} × Rs. {it.pricePKR.toLocaleString()}
                         </span>
                         {(it.isCustomizable || it.id === 'wood-slice-3' || it.id === 'wood-slice-5') && (
-                          <div className="mt-1 px-2.5 py-1 rounded-lg bg-purple-50 border border-purple-200 text-[11px] text-purple-900 font-semibold inline-flex items-center gap-1.5">
-                            <Sparkles className="w-3 h-3 text-purple-600" />
-                            <span>
-                              Custom Hand-Painted Text: <strong>"{receiptData.customName || 'Specified on WhatsApp'}"</strong>
-                            </span>
-                          </div>
+                          <span className="text-[10px] text-purple-700 font-medium block">
+                            ✍️ Custom Text: <strong>"{receiptData.customName}"</strong>
+                          </span>
                         )}
                       </div>
-                      <div className="text-right shrink-0">
-                        <span className="text-[11px] text-slate-500 block">Qty: {it.qty}</span>
-                        <strong className="text-slate-900 text-xs font-heading">
-                          Rs. {(it.pricePKR * it.qty).toLocaleString()}
-                        </strong>
-                      </div>
+                      <strong className="text-slate-900 text-xs shrink-0">
+                        Rs. {(it.pricePKR * it.qty).toLocaleString()}
+                      </strong>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Financial Calculation Box */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+              {/* Price Calculation */}
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
                 <div className="flex justify-between text-slate-600">
                   <span>Subtotal:</span>
                   <span className="font-semibold text-slate-800">Rs. {receiptData.subtotalPKR.toLocaleString()} PKR</span>
                 </div>
-
                 <div className="flex justify-between text-slate-600">
-                  <span>Delivery Charges ({receiptData.isFaisalabad ? 'Faisalabad' : receiptData.customer.city}):</span>
+                  <span>Delivery Charges:</span>
                   <span className="font-semibold text-slate-800">
-                    {receiptData.shippingFee === 0 ? 'Rs. 0 (FREE)' : `Rs. ${receiptData.shippingFee} PKR`}
+                    Rs. {receiptData.shippingFee.toLocaleString()} PKR
                   </span>
                 </div>
-
-                <div className="border-t border-slate-200 pt-2 flex justify-between items-baseline">
-                  <span className="font-cinzel font-bold text-sm text-slate-900">Grand Total:</span>
-                  <span className="text-lg font-bold font-heading text-slate-900">
-                    Rs. {receiptData.grandTotalPKR.toLocaleString()} PKR
-                  </span>
+                <div className="border-t border-slate-200 pt-1.5 flex justify-between items-baseline font-bold text-slate-900">
+                  <span className="text-xs">Grand Total:</span>
+                  <span className="text-sm">Rs. {receiptData.grandTotalPKR.toLocaleString()} PKR</span>
                 </div>
 
-                {/* 50% Advance Requirement Notice for Customizable Paintings */}
+                {/* 50% Advance Notice if customizable */}
                 {receiptData.hasCustomizable && (
-                  <div className="mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 text-amber-950 space-y-2">
-                    <div className="flex items-center justify-between font-bold text-xs border-b border-amber-200/80 pb-1.5">
-                      <span className="flex items-center gap-1.5 text-amber-900">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                        50% Advance Deposit Required:
-                      </span>
-                      <span className="text-sm font-bold text-amber-950">
-                        Rs. {receiptData.advanceRequiredPKR.toLocaleString()} PKR
-                      </span>
+                  <div className="mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] space-y-1">
+                    <div className="flex justify-between font-bold text-amber-950">
+                      <span>50% Advance Required:</span>
+                      <span>Rs. {receiptData.advanceRequiredPKR.toLocaleString()} PKR</span>
                     </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-amber-900">
-                      <span>Remaining Balance (Due on Delivery):</span>
-                      <span className="font-bold">Rs. {receiptData.balanceDuePKR.toLocaleString()} PKR</span>
+                    <div className="flex justify-between text-slate-600 text-[10px]">
+                      <span>Remaining on Delivery:</span>
+                      <span>Rs. {receiptData.balanceDuePKR.toLocaleString()} PKR</span>
                     </div>
-
-                    <div className="pt-1 text-[11px] leading-relaxed bg-white/80 p-2.5 rounded-xl border border-amber-200">
-                      <p className="font-semibold text-amber-950 flex items-start gap-1.5">
-                        <Phone className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
-                        <span>
-                          Customized painting order ke liye <strong>50% advance deposit</strong> lazmi hai. Payment details (JazzCash / EasyPaisa / Bank Account) aapke number <strong>{receiptData.customer.phone}</strong> par message / WhatsApp ke zariye send ki ja rahi hain.
-                        </span>
-                      </p>
-                    </div>
+                    <p className="text-[10px] text-amber-800 pt-0.5 leading-snug">
+                      📲 50% Advance payment ke details (JazzCash/EasyPaisa/Bank) aapke number <strong>{receiptData.customer.phone}</strong> par message kar diye gaye hain.
+                    </p>
                   </div>
                 )}
               </div>
 
-              {/* Action Buttons for Receipt */}
-              <div className="space-y-2 pt-2">
+              {/* Receipt Action Buttons (Compact) */}
+              <div className="space-y-1.5 pt-1">
                 <button
                   type="button"
                   onClick={() => handleWhatsAppOrder(receiptData)}
-                  className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
+                  className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm transition-all"
                 >
-                  <MessageCircle className="w-4 h-4 text-emerald-200" />
-                  <span>Send / Copy Receipt to Studio WhatsApp</span>
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>Send Receipt on WhatsApp</span>
                 </button>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1.5">
                   <button
                     type="button"
-                    onClick={handlePrintReceipt}
-                    className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 font-bold text-xs text-slate-700 flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                    onClick={() => window.print()}
+                    className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] font-semibold text-slate-700 flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    <Printer className="w-3.5 h-3.5 text-slate-600" />
+                    <Printer className="w-3 h-3 text-slate-500" />
                     <span>Print Receipt</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={handleFinishAndClose}
-                    className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                    className="py-1.5 px-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-[11px] font-semibold text-white flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    <Check className="w-3.5 h-3.5 text-sky-400" />
-                    <span>Done / Back to Gallery</span>
+                    <span>Done</span>
                   </button>
                 </div>
               </div>
@@ -551,314 +467,206 @@ export function CartDrawer({
             /* ============================================================ */
             /* 2. EMPTY BAG VIEW                                            */
             /* ============================================================ */
-            <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
-              <div className="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
-                <ShoppingBag className="w-8 h-8" />
+            <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2">
+              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                <ShoppingBag className="w-6 h-6" />
               </div>
-              <h4 className="font-cinzel font-bold text-lg text-slate-900">Your bag is empty</h4>
-              <p className="text-xs text-slate-500 max-w-xs">
-                Browse our collection of hand-painted acrylic paintings from Faisalabad and add your favorite piece.
+              <h4 className="font-cinzel font-bold text-sm text-slate-900">Your bag is empty</h4>
+              <p className="text-[11px] text-slate-500 max-w-xs">
+                Browse our collection of hand-painted acrylic artworks.
               </p>
               <button
                 onClick={onClose}
-                className="mt-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 text-white font-bold text-xs shadow-md shadow-sky-500/20 cursor-pointer"
+                className="mt-1 px-4 py-2 rounded-lg bg-sky-600 text-white font-bold text-xs cursor-pointer shadow-sm"
               >
                 Explore Paintings
               </button>
             </div>
           ) : showCheckoutForm ? (
             /* ============================================================ */
-            /* 3. CHECKOUT FORM VIEW                                        */
+            /* 3. COMPACT & SIMPLE CHECKOUT FORM VIEW                       */
             /* ============================================================ */
-            <form onSubmit={handleDirectSubmit} className="space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <h4 className="text-sm font-bold text-sky-900">Delivery Information & City</h4>
+            <form onSubmit={handleDirectSubmit} className="space-y-2.5">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  Checkout Information
+                </h4>
                 <button
                   type="button"
                   onClick={() => setShowCheckoutForm(false)}
-                  className="text-xs text-slate-500 hover:text-slate-900 font-semibold underline cursor-pointer"
+                  className="text-[11px] text-slate-500 hover:text-slate-900 underline cursor-pointer"
                 >
                   Back to Bag
                 </button>
               </div>
 
-              {/* CUSTOM NAME REQUIRED PROMPT IF CUSTOMIZABLE PAINTING SELECTED */}
+              {/* Custom Name / Text (Only if customizable item in cart) */}
               {hasCustomizable && (
-                <div
-                  className={`p-3.5 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 border-2 transition-all ${
-                    customNameRequiredAlert && !customer.customName.trim()
-                      ? 'border-rose-500 ring-2 ring-rose-300'
-                      : 'border-purple-300 shadow-sm'
-                  }`}
-                >
-                  <label className="flex items-center gap-1.5 text-xs text-purple-950 font-bold mb-1">
-                    <Sparkles className="w-4 h-4 text-purple-600" />
-                    <span>Name / Text to Write on Painting *</span>
-                    <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white text-[10px] font-bold">
-                      Mandatory for Custom Order
+                <div className="p-2.5 rounded-xl bg-purple-50/80 border border-purple-200 space-y-1">
+                  <label className="flex items-center justify-between text-[11px] font-bold text-purple-950">
+                    <span className="flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-purple-600" />
+                      Name / Text to Write on Painting *
+                    </span>
+                    <span className="text-[9px] text-purple-600 font-semibold bg-purple-100 px-1.5 py-0.2 rounded">
+                      50% Advance
                     </span>
                   </label>
                   <input
                     type="text"
                     required
                     value={customer.customName}
-                    onChange={(e) => {
-                      setCustomer({ ...customer, customName: e.target.value });
-                      if (e.target.value.trim()) setCustomNameRequiredAlert(false);
-                    }}
-                    placeholder="e.g. Malik Family, Hamara Ghar, Ahmad & Ayesha • 2024"
-                    className="w-full px-3 py-2.5 rounded-xl bg-white border border-purple-300 text-slate-900 text-xs outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 font-semibold"
-                    maxLength={120}
+                    onChange={(e) => setCustomer({ ...customer, customName: e.target.value })}
+                    placeholder="e.g. Malik Family, Ahmad & Ayesha • 2024"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-purple-300 text-slate-900 text-xs outline-none focus:border-purple-600 font-medium"
                   />
-                  <div className="mt-1.5 flex items-start gap-1.5 text-[11px] text-purple-900 font-medium">
-                    <Clock className="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5" />
-                    <span>
-                      50% advance deposit required for custom piece. Payment details will be sent to your phone number.
-                    </span>
-                  </div>
+                  <p className="text-[10px] text-purple-700">
+                    Custom piece requires 50% advance deposit via SMS/WhatsApp.
+                  </p>
                 </div>
               )}
 
-              {/* Customer Personal Details */}
-              <div className="space-y-3">
+              {/* Standard Inputs */}
+              <div>
+                <label className="block text-[11px] text-slate-600 font-medium mb-0.5">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={customer.name}
+                  onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
+                  placeholder="e.g. Tariq Jamil"
+                  className="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:border-sky-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs text-slate-700 font-medium mb-1">Full Name *</label>
+                  <label className="block text-[11px] text-slate-600 font-medium mb-0.5">Phone Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={customer.phone}
+                    onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
+                    placeholder="0300-1234567"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:border-sky-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] text-slate-600 font-medium mb-0.5">City *</label>
                   <input
                     type="text"
                     required
-                    value={customer.name}
-                    onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
-                    placeholder="e.g. Tariq Jamil"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:border-sky-500"
+                    value={customer.city}
+                    onChange={(e) => setCustomer({ ...customer, city: e.target.value })}
+                    placeholder="e.g. Faisalabad, Lahore, Karachi..."
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:border-sky-500"
                   />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-slate-700 font-medium mb-1">Phone / WhatsApp *</label>
-                    <input
-                      type="tel"
-                      required
-                      value={customer.phone}
-                      onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
-                      placeholder="0300-1234567"
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:border-sky-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-slate-700 font-medium mb-1">
-                      Email <span className="text-slate-400 font-normal">(Optional)</span>
-                    </label>
-                    <input
-                      type="email"
-                      value={customer.email}
-                      onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
-                      placeholder="customer@example.com"
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:border-sky-500"
-                    />
-                  </div>
-                </div>
-
-                {/* CITY SELECTION (Faisalabad vs Outside) */}
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-                  <label className="block text-xs font-bold text-slate-800">
-                    Select Delivery Destination City *
-                  </label>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCityType('faisalabad');
-                        setCustomer({ ...customer, city: 'Faisalabad' });
-                      }}
-                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-start gap-1 transition-all cursor-pointer ${
-                        isFaisalabad
-                          ? 'bg-sky-500 text-white border-sky-600 shadow-md shadow-sky-500/20'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-sky-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <Building2 className="w-3.5 h-3.5" />
-                        <span>Faisalabad</span>
-                      </div>
-                      <span className={`text-[10px] font-normal ${isFaisalabad ? 'text-sky-100' : 'text-emerald-600 font-semibold'}`}>
-                        Free Delivery (COD & Adv) • 48 Hours
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCityType('outside');
-                        setCustomer({ ...customer, city: customer.outsideCityName || 'Outside Faisalabad' });
-                      }}
-                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-start gap-1 transition-all cursor-pointer ${
-                        !isFaisalabad
-                          ? 'bg-sky-500 text-white border-sky-600 shadow-md shadow-sky-500/20'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-sky-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <Truck className="w-3.5 h-3.5" />
-                        <span>Outside Faisalabad</span>
-                      </div>
-                      <span className={`text-[10px] font-normal ${!isFaisalabad ? 'text-sky-100' : 'text-slate-500'}`}>
-                        Rest of Pakistan • 4–7 Days
-                      </span>
-                    </button>
-                  </div>
-
-                  {!isFaisalabad && (
-                    <div className="pt-1">
-                      <label className="block text-[11px] text-slate-600 font-medium mb-1">
-                        Enter Your City Name (Lahore, Karachi, Islamabad, etc.) *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={customer.outsideCityName}
-                        onChange={(e) => {
-                          setCustomer({
-                            ...customer,
-                            outsideCityName: e.target.value,
-                            city: e.target.value
-                          });
-                        }}
-                        placeholder="e.g. Lahore, Islamabad, Karachi, Rawalpindi, Peshawar..."
-                        className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs outline-none focus:border-sky-500"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Complete Address */}
-                <div>
-                  <label className="block text-xs text-slate-700 font-medium mb-1">Complete Delivery Address *</label>
-                  <textarea
-                    required
-                    rows={2}
-                    value={customer.address}
-                    onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
-                    placeholder="House / Street #, Sector / Colony, City"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:border-sky-500"
-                  />
-                </div>
-
-                {/* PAYMENT METHOD SELECTOR */}
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                  <label className="block text-xs font-bold text-slate-800">
-                    Payment Option
-                  </label>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('cod')}
-                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-start gap-0.5 transition-all cursor-pointer ${
-                        paymentMethod === 'cod'
-                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <span>Cash on Delivery (COD)</span>
-                      <span className={`text-[10px] font-normal ${paymentMethod === 'cod' ? 'text-slate-300' : 'text-slate-500'}`}>
-                        {isFaisalabad ? 'Free Delivery' : '+Rs. 250 Delivery Fee'}
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('advance')}
-                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-start gap-0.5 transition-all cursor-pointer ${
-                        paymentMethod === 'advance'
-                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>Advance Payment</span>
-                        <span className="px-1.5 py-0.2 rounded bg-emerald-500 text-white text-[9px] font-bold">FREE</span>
-                      </div>
-                      <span className={`text-[10px] font-normal ${paymentMethod === 'advance' ? 'text-emerald-300' : 'text-emerald-600'}`}>
-                        Free Delivery Everywhere
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* Summary of shipping fee & timeline */}
-                  <div className="p-2.5 rounded-xl bg-white border border-slate-200 text-[11px] text-slate-700 space-y-1">
-                    <div className="flex justify-between">
-                      <span>Delivery Timeframe:</span>
-                      <strong className="text-slate-900">{deliveryTime}</strong>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Delivery Fee:</span>
-                      <strong className={shippingFee === 0 ? 'text-emerald-600' : 'text-slate-900'}>
-                        {shippingFee === 0 ? 'FREE (Rs. 0)' : `Rs. ${shippingFee} PKR`}
-                      </strong>
-                    </div>
-                    <div className="flex justify-between border-t border-slate-100 pt-1 font-bold text-xs text-slate-900">
-                      <span>Total Amount:</span>
-                      <span>Rs. {grandTotalPKR.toLocaleString()} PKR</span>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {/* Submit Button */}
+              <div>
+                <label className="block text-[11px] text-slate-600 font-medium mb-0.5">Delivery Address *</label>
+                <textarea
+                  required
+                  rows={2}
+                  value={customer.address}
+                  onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
+                  placeholder="House #, Street, Area / Sector"
+                  className="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:border-sky-500"
+                />
+              </div>
+
+              {/* Payment Mode Pills (Compact) */}
+              <div>
+                <label className="block text-[11px] text-slate-600 font-medium mb-1">Payment Method</label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('cod')}
+                    className={`py-1.5 px-2 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
+                      paymentMethod === 'cod'
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    Cash on Delivery
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('advance')}
+                    className={`py-1.5 px-2 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
+                      paymentMethod === 'advance'
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    Advance Payment
+                  </button>
+                </div>
+              </div>
+
+              {/* Small Summary Strip */}
+              <div className="p-2 rounded-lg bg-slate-50 border border-slate-200 text-[11px] space-y-0.5">
+                <div className="flex justify-between text-slate-500">
+                  <span>Delivery Charges:</span>
+                  <span className="font-semibold text-slate-800">
+                    Rs. {shippingFee.toLocaleString()} PKR
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-500">
+                  <span>Delivery Time:</span>
+                  <span className="font-semibold text-slate-800">{deliveryTime}</span>
+                </div>
+                <div className="flex justify-between font-bold text-slate-900 border-t border-slate-200 pt-1 text-xs">
+                  <span>Total Amount:</span>
+                  <span>Rs. {grandTotalPKR.toLocaleString()} PKR</span>
+                </div>
+              </div>
+
+              {/* Submit Button (Compact) */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-sky-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-md shadow-sky-600/20 transition-all flex items-center justify-center gap-1.5 disabled:opacity-75 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-white" />
-                    <span>Generating Official Receipt Slip...</span>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Processing Order...</span>
                   </>
                 ) : (
                   <>
-                    <FileText className="w-4 h-4 text-white" />
-                    <span>Generate Receipt Slip (Rs. {grandTotalPKR.toLocaleString()} PKR)</span>
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Complete Order & Get Receipt</span>
                   </>
                 )}
               </button>
             </form>
           ) : (
             /* ============================================================ */
-            /* 4. ITEMS LIST VIEW (With Pre-checkout Custom Name Prompt)    */
+            /* 4. ITEMS LIST VIEW                                           */
             /* ============================================================ */
-            <div className="space-y-3">
-              {/* Customizable painting alert & pre-checkout name prompt */}
+            <div className="space-y-2.5">
+              {/* Optional Custom text prompt in cart if customizable */}
               {hasCustomizable && (
-                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 border-2 border-purple-200/90 shadow-sm space-y-2">
-                  <div className="flex items-center gap-2 text-purple-950 font-bold text-xs">
-                    <Sparkles className="w-4 h-4 text-purple-600" />
-                    <span>Customizable Painting in Cart!</span>
-                    <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white text-[10px]">
-                      50% Advance
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-purple-900 leading-relaxed">
-                    Aapne customize painting select ki hai. Barah-e-karam checkout se pehle apna <strong>Name, Family Name ya Date</strong> darj farmayein:
-                  </p>
+                <div className="p-2.5 rounded-xl bg-purple-50 border border-purple-200 space-y-1">
+                  <span className="text-[11px] font-bold text-purple-900 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-purple-600" />
+                    Customize Painting Name / Text
+                  </span>
                   <input
                     type="text"
                     value={customer.customName}
                     onChange={(e) => setCustomer({ ...customer, customName: e.target.value })}
-                    placeholder="e.g. The Malik Family, Hamara Ghar, Ahmad & Ayesha • 2024"
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-purple-300 text-slate-900 text-xs font-semibold outline-none focus:ring-2 focus:ring-purple-300 placeholder:text-slate-400 placeholder:font-normal"
+                    placeholder="e.g. Malik Family, Ahmad & Ayesha • 2024"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-purple-200 text-slate-900 text-xs outline-none focus:border-purple-500"
                   />
-                  <div className="text-[10px] text-purple-700 flex items-center gap-1.5 font-medium">
-                    <Clock className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                    <span>Custom order banwane ke liye 50% advance deposit lazmi hoga.</span>
-                  </div>
                 </div>
               )}
 
-              {/* Items Card Loop */}
+              {/* Items List */}
               {cartItems.map((item) => {
                 const itemIsCustomizable = Boolean(
                   item.isCustomizable || item.id === 'wood-slice-3' || item.id === 'wood-slice-5'
@@ -867,59 +675,53 @@ export function CartDrawer({
                 return (
                   <div
                     key={item.id}
-                    className="p-3 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3"
+                    className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center gap-2.5"
                   >
-                    <div className="w-20 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                    <div className="w-14 h-14 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
                       <img src={resolveAssetUrl(item.wallImage)} alt={item.title} className="w-full h-full object-cover" />
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <h5 className="font-cinzel font-bold text-xs text-slate-900 truncate">
-                          {item.title}
-                        </h5>
-                      </div>
+                      <h5 className="font-cinzel font-bold text-xs text-slate-900 truncate">
+                        {item.title}
+                      </h5>
                       <span className="text-[10px] text-slate-500 block truncate">
-                        {item.dimensions} • Acrylic on Wood Slice
+                        {item.dimensions}
                       </span>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="text-xs font-bold text-sky-700 font-heading">
-                          Rs. {(item.pricePKR * item.qty).toLocaleString()} PKR
+                          Rs. {(item.pricePKR * item.qty).toLocaleString()}
                         </span>
-                        {itemIsCustomizable ? (
-                          <span className="px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800 text-[9px] font-bold">
+                        {itemIsCustomizable && (
+                          <span className="px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 text-[9px] font-semibold">
                             Customizable
-                          </span>
-                        ) : (
-                          <span className="px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-600 text-[9px] font-medium">
-                            Original Piece
                           </span>
                         )}
                       </div>
                     </div>
 
-                    {/* Quantity & Delete */}
+                    {/* Qty & Delete (Compact) */}
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       <button
                         onClick={() => onRemoveItem(item.id)}
-                        className="p-1 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+                        className="p-0.5 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                         title="Remove"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
-                      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200 text-xs">
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-xs">
                         <button
                           onClick={() => onUpdateQty(item.id, item.qty - 1)}
-                          className="text-slate-500 hover:text-slate-900 cursor-pointer"
+                          className="text-slate-500 hover:text-slate-900 cursor-pointer p-0.5"
                         >
-                          <Minus className="w-3 h-3" />
+                          <Minus className="w-2.5 h-2.5" />
                         </button>
-                        <span className="font-semibold text-slate-800 px-1">{item.qty}</span>
+                        <span className="font-semibold text-slate-800 text-[11px] px-1">{item.qty}</span>
                         <button
                           onClick={() => onUpdateQty(item.id, item.qty + 1)}
-                          className="text-slate-500 hover:text-slate-900 cursor-pointer"
+                          className="text-slate-500 hover:text-slate-900 cursor-pointer p-0.5"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-2.5 h-2.5" />
                         </button>
                       </div>
                     </div>
@@ -930,57 +732,36 @@ export function CartDrawer({
           )}
         </div>
 
-        {/* Drawer Footer (Only on items list screen) */}
+        {/* Drawer Footer (Compact) */}
         {cartItems.length > 0 && !showCheckoutForm && !receiptData && (
-          <div className="p-4 sm:p-5 border-t border-slate-200 bg-slate-50 space-y-3">
-            {/* Delivery Terms Summary */}
-            <div className="p-2.5 rounded-xl bg-white border border-slate-200 text-[11px] text-slate-600 space-y-1">
-              <div className="flex items-center justify-between font-semibold text-emerald-800">
-                <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Faisalabad: Free Delivery (COD & Adv) • 48 Hours</span>
-                </span>
-              </div>
-              <div className="text-[10px] text-slate-500 pl-4.5">
-                Outside Faisalabad: Free on Advance (COD Rs. 250) • 4–7 Days
-              </div>
-            </div>
-
-            {/* Total Row */}
-            <div className="flex items-baseline justify-between pt-1">
+          <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 space-y-2.5">
+            <div className="flex items-baseline justify-between">
               <div>
-                <span className="text-xs text-slate-600 font-bold block">Artworks Subtotal</span>
-                <span className="text-[11px] text-slate-400">Acrylic Fine Art on Wood Slice</span>
+                <span className="text-xs text-slate-500 font-medium">Subtotal</span>
               </div>
               <div className="text-right">
-                <span className="text-2xl font-bold font-heading text-slate-900 block">
-                  Rs. {subtotalPKR.toLocaleString()}
-                </span>
-                <span className="text-xs text-slate-500">
-                  (~${grandTotalUSD} USD)
+                <span className="text-lg font-bold font-heading text-slate-900">
+                  Rs. {subtotalPKR.toLocaleString()} PKR
                 </span>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2 pt-1">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={handleProceedToCheckout}
-                className="py-3 px-3 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-sky-500/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
               >
-                <span>Proceed to Checkout</span>
+                <span>Checkout</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
 
-              <div className="flex items-center justify-end">
-                <LiquidMetalButton
-                  label="WhatsApp Order"
-                  icon={<MessageCircle className="w-3.5 h-3.5 text-emerald-400" />}
-                  onClick={() => handleWhatsAppOrder()}
-                  width={155}
-                  height={42}
-                />
-              </div>
+              <button
+                onClick={() => handleWhatsAppOrder()}
+                className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-200" />
+                <span>WhatsApp</span>
+              </button>
             </div>
           </div>
         )}
