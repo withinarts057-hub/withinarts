@@ -8,7 +8,8 @@ export function Navbar({
   setSearchTerm,
   cartCount,
   onOpenCart,
-  studioInfo
+  studioInfo,
+  onNavigateHome
 }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -43,10 +44,14 @@ export function Navbar({
       {/* ── Top-Left: Brand Logo & Name Anchor (Clean, elegant, always accessible) ── */}
       <div className="fixed top-3 sm:top-4 left-3 sm:left-6 z-50">
         <a
-          href="#"
+          href="/"
           onClick={(e) => {
             e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (onNavigateHome) {
+              onNavigateHome();
+            } else {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
           }}
           className={`flex items-center gap-1.5 sm:gap-3 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-2xl transition-all duration-300 group cursor-pointer ${isScrolled
               ? 'bg-white/95 backdrop-blur-xl border border-sky-100 shadow-lg shadow-slate-900/10 hover:shadow-xl scale-95'

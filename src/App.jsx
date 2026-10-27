@@ -151,39 +151,183 @@ export default function App() {
   // Dedicated Secret Studio Owner Key: \928731408@admin or #928731408@admin
   const SECRET_ADMIN_KEY = '928731408@admin';
 
-  // Listen for secret admin URL (#928731408@admin, /928731408@admin, or \928731408@admin)
-  useEffect(() => {
-    const checkAdminRoute = () => {
-      const hash = window.location.hash || '';
-      const pathname = decodeURIComponent(window.location.pathname || '');
-      const search = window.location.search || '';
+  // Helper to create human-readable, SEO-friendly painting slugs (e.g. bismillah-royal-azure-painting-1)
+  const getPaintingSlug = (p) => {
+    if (!p) return '';
+    const cleanTitle = (p.title || 'artwork')
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return `${cleanTitle}-${p.id}`;
+  };
 
+  const getBasePath = () => {
+    return window.location.pathname.startsWith('/withinarts') ? '/withinarts' : '';
+  };
+
+  // Comprehensive URL Router: Handles /painting/:slug, /cart, /gallery, /our-story, /reviews, /admin
+  useEffect(() => {
+    const handleRoute = () => {
+      const hash = window.location.hash || '';
+      const rawPath = decodeURIComponent(window.location.pathname || '');
+      const search = window.location.search || '';
+      const base = getBasePath();
+      const path = rawPath.replace(base, '') || '/';
+
+      // 1. Admin / Owner Portal
       const isAdminRequested =
         hash.includes(SECRET_ADMIN_KEY) ||
-        pathname.includes(SECRET_ADMIN_KEY) ||
-        search.includes(SECRET_ADMIN_KEY);
+        rawPath.includes(SECRET_ADMIN_KEY) ||
+        search.includes(SECRET_ADMIN_KEY) ||
+        path.startsWith('/admin') ||
+        hash.startsWith('#admin');
 
       if (isAdminRequested) {
-        const isAuth = sessionStorage.getItem('withinarts_studio_session') === 'authenticated' || sessionStorage.getItem('withinart_studio_session') === 'authenticated';
+        const isAuth = sessionStorage.getItem('withinarts_studio_session') === 'authenticated';
         if (isAuth) {
           setIsManagerOpen(true);
           setIsLoginModalOpen(false);
         } else {
           setIsLoginModalOpen(true);
         }
+        return;
+      }
+
+      // 2. Painting Detail View (/painting/:slug or #painting/:slug)
+      const paintingMatch = path.match(/^\/painting\/([^\/\?#]+)/) || hash.match(/^#\/?painting\/([^\/\?#]+)/);
+      if (paintingMatch) {
+        const param = paintingMatch[1].toLowerCase();
+        const found = paintings.find((p) => {
+          const fullSlug = getPaintingSlug(p).toLowerCase();
+          return (
+            p.id.toLowerCase() === param ||
+            fullSlug === param ||
+            param.endsWith(p.id.toLowerCase()) ||
+            param.includes(p.id.toLowerCase()) ||
+            (p.title && fullSlug.includes(param))
+          );
+        });
+
+        if (found) {
+          setSelectedPainting(found);
+          document.title = `${found.title} | Withinarts Studio`;
+          return;
+        }
+      }
+
+      // If not on painting route, close detail view
+      setSelectedPainting((prev) => (prev ? null : prev));
+
+      // 3. Cart Drawer (/cart or #cart)
+      if (path === '/cart' || hash === '#cart' || hash === '#/cart') {
+        setIsCartOpen(true);
+      } else {
+        setIsCartOpen(false);
+      }
+
+      // 4. Section Smooth Scrolling with clean URLs
+      if (path === '/gallery' || hash === '#gallery' || hash === '#/gallery') {
+        setTimeout(() => galleryRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      } else if (path === '/our-story' || hash === '#our-story' || path === '/about' || hash === '#about') {
+        setTimeout(() => document.getElementById('our-story')?.scrollIntoView({ behavior: 'smooth' }), 100);
+      } else if (path === '/reviews' || hash === '#reviews') {
+        setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }), 100);
+      } else if (path === '/' && !hash) {
+        document.title = "Withinarts | Handcrafted Oil Paintings & Fine Art Studio";
       }
     };
 
-    checkAdminRoute();
+    handleRoute();
 
-    window.addEventListener('hashchange', checkAdminRoute);
-    window.addEventListener('popstate', checkAdminRoute);
+    window.addEventListener('popstate', handleRoute);
+    window.addEventListener('hashchange', handleRoute);
 
     return () => {
-      window.removeEventListener('hashchange', checkAdminRoute);
-      window.removeEventListener('popstate', checkAdminRoute);
+      window.removeEventListener('popstate', handleRoute);
+      window.removeEventListener('hashchange', handleRoute);
     };
-  }, []);
+  }, [paintings]);
+
+  // Clean Navigation Handlers that update URL and browser history
+  const handleSelectPainting = (painting) => {
+    if (!painting) return;
+    setSelectedPainting(painting);
+    const slug = getPaintingSlug(painting);
+    const base = getBasePath();
+    const targetUrl = `${base}/painting/${slug}`;
+    if (window.location.pathname !== targetUrl) {
+      window.history.pushState({ type: 'painting', id: painting.id, slug }, `${painting.title} | Withinarts`, targetUrl);
+    }
+    document.title = `${painting.title} | Withinarts Studio`;
+  };
+
+  const handleBackFromDetail = () => {
+    setSelectedPainting(null);
+    const base = getBasePath();
+    window.history.pushState({ type: 'home' }, "Withinarts", base + '/');
+    document.title = "Withinarts | Handcrafted Oil Paintings & Fine Art Studio";
+  };
+
+  const handleOpenCart = () => {
+    setIsCartOpen(true);
+    const base = getBasePath();
+    if (!window.location.pathname.endsWith('/cart')) {
+      window.history.pushState({ type: 'cart' }, "Cart | Withinarts", base + '/cart');
+    }
+  };
+
+  const handleCloseCart = () => {
+    setIsCartOpen(false);
+    const base = getBasePath();
+    if (window.location.pathname.endsWith('/cart')) {
+      const prev = selectedPainting ? `${base}/painting/${getPaintingSlug(selectedPainting)}` : (base + '/');
+      window.history.replaceState({ type: selectedPainting ? 'painting' : 'home' }, "Withinarts", prev);
+    }
+  };
+
+  const handleNavigateHome = () => {
+    setSelectedPainting(null);
+    setIsCartOpen(false);
+    const base = getBasePath();
+    window.history.pushState({ type: 'home' }, "Withinarts", base + '/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.title = "Withinarts | Handcrafted Oil Paintings & Fine Art Studio";
+  };
+
+  const scrollToGallery = () => {
+    if (selectedPainting) {
+      setSelectedPainting(null);
+    }
+    const base = getBasePath();
+    window.history.pushState({ type: 'section', section: 'gallery' }, "Collection | Withinarts", base + '/gallery');
+    setTimeout(() => {
+      galleryRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 60);
+  };
+
+  const scrollToStory = () => {
+    if (selectedPainting) {
+      setSelectedPainting(null);
+    }
+    const base = getBasePath();
+    window.history.pushState({ type: 'section', section: 'our-story' }, "Our Story | Withinarts", base + '/our-story');
+    setTimeout(() => {
+      document.getElementById('our-story')?.scrollIntoView({ behavior: 'smooth' });
+    }, 60);
+  };
+
+  const scrollToReviews = () => {
+    if (selectedPainting) {
+      setSelectedPainting(null);
+    }
+    const base = getBasePath();
+    window.history.pushState({ type: 'section', section: 'reviews' }, "Reviews | Withinarts", base + '/reviews');
+    setTimeout(() => {
+      document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
+    }, 60);
+  };
 
   const handleLoginSuccess = () => {
     setIsLoginModalOpen(false);
@@ -195,13 +339,12 @@ export default function App() {
 
   const handleCloseLoginModal = () => {
     setIsLoginModalOpen(false);
-    if (window.location.hash.includes(SECRET_ADMIN_KEY)) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    }
+    const base = getBasePath();
+    window.history.replaceState(null, '', base + '/');
   };
 
   const handleOpenOwnerPortal = () => {
-    const isAuth = sessionStorage.getItem('withinarts_studio_session') === 'authenticated' || sessionStorage.getItem('withinart_studio_session') === 'authenticated';
+    const isAuth = sessionStorage.getItem('withinarts_studio_session') === 'authenticated';
     if (isAuth) {
       setIsManagerOpen(true);
       window.location.hash = SECRET_ADMIN_KEY;
@@ -212,20 +355,17 @@ export default function App() {
 
   const handleCloseManager = () => {
     setIsManagerOpen(false);
-    if (window.location.hash.includes(SECRET_ADMIN_KEY)) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    }
+    const base = getBasePath();
+    window.history.replaceState(null, '', base + '/');
   };
 
   const handleLockPortal = () => {
     try {
       sessionStorage.removeItem('withinarts_studio_session');
-      sessionStorage.removeItem('withinart_studio_session');
     } catch (e) { }
     setIsManagerOpen(false);
-    if (window.location.hash.includes(SECRET_ADMIN_KEY)) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    }
+    const base = getBasePath();
+    window.history.replaceState(null, '', base + '/');
   };
 
   // Categories list
@@ -325,10 +465,6 @@ export default function App() {
     }
   };
 
-  const scrollToGallery = () => {
-    galleryRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   // Dedicated Full-Page Owner Portal View
   if (isManagerOpen) {
     return (
@@ -398,18 +534,18 @@ export default function App() {
       <div className="relative">
         <PaintingDetailPage
           painting={selectedPainting}
-          onBack={() => setSelectedPainting(null)}
+          onBack={handleBackFromDetail}
           onAddToCart={handleAddToCart}
           whatsappNumber={studioInfo.whatsapp}
-          onSelectPainting={(p) => setSelectedPainting(p)}
+          onSelectPainting={handleSelectPainting}
           allPaintings={paintings}
           cartCount={(Array.isArray(cart) ? cart : []).reduce((sum, item) => sum + (Number(item.qty) || 1), 0)}
-          onOpenCart={() => setIsCartOpen(true)}
+          onOpenCart={handleOpenCart}
         />
         {/* Cart Slide-Over Drawer on Detail Page */}
         <CartDrawer
           isOpen={isCartOpen}
-          onClose={() => setIsCartOpen(false)}
+          onClose={handleCloseCart}
           cartItems={Array.isArray(cart) ? cart : []}
           onUpdateQty={handleUpdateQty}
           onRemoveItem={handleRemoveItem}
@@ -430,8 +566,12 @@ export default function App() {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         cartCount={cart.reduce((sum, item) => sum + item.qty, 0)}
-        onOpenCart={() => setIsCartOpen(true)}
+        onOpenCart={handleOpenCart}
         studioInfo={studioInfo}
+        onNavigateHome={handleNavigateHome}
+        onNavigateGallery={scrollToGallery}
+        onNavigateStory={scrollToStory}
+        onNavigateReviews={scrollToReviews}
       />
 
       {/* Main Content */}
@@ -441,7 +581,7 @@ export default function App() {
           studioInfo={studioInfo}
           onExploreClick={scrollToGallery}
           featuredPainting={paintings[0]}
-          onSelectPainting={(p) => setSelectedPainting(p)}
+          onSelectPainting={handleSelectPainting}
         />
 
         {/* Art Gallery Section (White Clean Art Background with Colorful Accents) */}
@@ -502,7 +642,7 @@ export default function App() {
                 <PaintingCard
                   key={painting.id}
                   painting={painting}
-                  onSelect={(p) => setSelectedPainting(p)}
+                  onSelect={handleSelectPainting}
                   onAddToCart={handleAddToCart}
                   whatsappNumber={studioInfo.whatsapp}
                 />
