@@ -129,16 +129,31 @@ export function Navbar({
           </div>
         </div>
 
-        {/* Cart Drawer Trigger with LiquidMetalButton */}
+        {/* Cart Drawer Trigger: Icon-only on mobile phone view, Full label on desktop */}
         <div className="rounded-2xl shadow-md shadow-slate-900/5 hover:shadow-xl transition-shadow shrink-0">
-          <LiquidMetalButton
-            label="Cart"
-            icon={<ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400" />}
-            badge={cartCount > 0 ? cartCount : undefined}
-            onClick={onOpenCart}
-            width={cartCount > 0 ? 98 : 86}
-            height={38}
-          />
+          {/* Phone View: Compact Luxury Icon Button */}
+          <div className="sm:hidden">
+            <LiquidMetalButton
+              viewMode="icon"
+              icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
+              badge={cartCount > 0 ? cartCount : undefined}
+              onClick={onOpenCart}
+              width={40}
+              height={38}
+            />
+          </div>
+
+          {/* Tablet & Desktop View: Full Button with Label */}
+          <div className="hidden sm:block">
+            <LiquidMetalButton
+              label="Cart"
+              icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
+              badge={cartCount > 0 ? cartCount : undefined}
+              onClick={onOpenCart}
+              width={cartCount > 0 ? 104 : 92}
+              height={40}
+            />
+          </div>
         </div>
       </div>
 
