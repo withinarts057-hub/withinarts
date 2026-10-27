@@ -604,7 +604,7 @@ export default function App() {
                 Curated Art Collection
               </h2>
               <p className="text-slate-600 text-sm max-w-xl">
-                Hover over any card to switch from the <strong className="text-sky-700 font-semibold">Wall View</strong> to the <strong className="text-sky-700 font-semibold">Close-Up View</strong> and activate the <strong className="text-amber-700 font-semibold">Aceternity Lens</strong> to inspect rich oil brushstrokes!
+                Explore our collection of authentic handmade oil paintings on seasoned solid rosewood, crafted with genuine 3D palette knife impasto textures.
               </p>
             </div>
 

@@ -46,17 +46,20 @@ export default function ShaderShowcase({
         className
       )}
     >
-      {/* ── Background: Active Moving Gradients (Living Organic Waves + WebGL MeshGradient covering 100% full screen) ── */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden [contain:paint] [clip-path:inset(0)]">
-        {/* Living Flowing Organic Gradients Layer (Dynamic continuous fluid motion) */}
-        <div className="absolute inset-0 w-full h-full opacity-70 overflow-hidden [contain:paint] [clip-path:inset(0)]">
+      {/* ── Background: Active Moving Gradients (Living Organic Waves + High-Performance WebGL MeshGradient) ── */}
+      <div 
+        className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden [contain:layout_paint] [clip-path:inset(0)]"
+        style={{ willChange: 'transform' }}
+      >
+        {/* Living Flowing Organic Gradients Layer (Dynamic continuous fluid motion with hardware acceleration) */}
+        <div className="absolute inset-0 w-full h-full opacity-65 overflow-hidden [contain:paint]">
           {/* Top-Left Azure / Cyan Flowing Wave */}
           <motion.div
-            className="absolute -top-20 -left-20 sm:-top-1/4 sm:-left-1/4 w-[90vw] sm:w-[75vw] max-w-[500px] h-[90vw] sm:h-[75vw] max-h-[500px] rounded-full bg-gradient-to-tr from-sky-400/50 via-cyan-300/45 to-blue-500/30 blur-3xl"
+            className="absolute -top-20 -left-20 sm:-top-1/4 sm:-left-1/4 w-[90vw] sm:w-[75vw] max-w-[500px] h-[90vw] sm:h-[75vw] max-h-[500px] rounded-full bg-gradient-to-tr from-sky-400/50 via-cyan-300/40 to-blue-500/25 blur-xl [transform:translateZ(0)]"
             animate={{
-              x: [0, 45, -25, 0],
-              y: [0, 35, -20, 0],
-              scale: [1, 1.1, 0.95, 1],
+              x: [0, 40, -20, 0],
+              y: [0, 30, -15, 0],
+              scale: [1, 1.08, 0.96, 1],
             }}
             transition={{
               duration: 16,
@@ -67,11 +70,11 @@ export default function ShaderShowcase({
 
           {/* Top-Right Warm Amber / Saffron Sun Swirl */}
           <motion.div
-            className="absolute -top-10 -right-16 sm:top-1/4 sm:-right-1/4 w-[80vw] sm:w-[65vw] max-w-[450px] h-[80vw] sm:h-[65vw] max-h-[450px] rounded-full bg-gradient-to-bl from-amber-400/50 via-yellow-300/40 to-orange-400/30 blur-3xl"
+            className="absolute -top-10 -right-16 sm:top-1/4 sm:-right-1/4 w-[80vw] sm:w-[65vw] max-w-[450px] h-[80vw] sm:h-[65vw] max-h-[450px] rounded-full bg-gradient-to-bl from-amber-400/50 via-yellow-300/35 to-orange-400/25 blur-xl [transform:translateZ(0)]"
             animate={{
-              x: [0, -45, 20, 0],
-              y: [0, -35, 25, 0],
-              scale: [1, 1.12, 0.92, 1],
+              x: [0, -40, 15, 0],
+              y: [0, -30, 20, 0],
+              scale: [1, 1.1, 0.94, 1],
             }}
             transition={{
               duration: 18,
@@ -83,11 +86,11 @@ export default function ShaderShowcase({
 
           {/* Bottom Rose Quartz & Magenta Wave */}
           <motion.div
-            className="absolute -bottom-20 left-1/4 w-[85vw] sm:w-[70vw] max-w-[460px] h-[85vw] sm:h-[70vw] max-h-[460px] rounded-full bg-gradient-to-t from-rose-400/45 via-pink-300/35 to-purple-400/30 blur-3xl"
+            className="absolute -bottom-20 left-1/4 w-[85vw] sm:w-[70vw] max-w-[460px] h-[85vw] sm:h-[70vw] max-h-[460px] rounded-full bg-gradient-to-t from-rose-400/40 via-pink-300/30 to-purple-400/25 blur-xl [transform:translateZ(0)]"
             animate={{
-              x: [0, 35, -35, 0],
-              y: [0, -30, 20, 0],
-              scale: [1, 1.08, 0.95, 1],
+              x: [0, 30, -30, 0],
+              y: [0, -25, 15, 0],
+              scale: [1, 1.06, 0.96, 1],
             }}
             transition={{
               duration: 20,
@@ -99,11 +102,11 @@ export default function ShaderShowcase({
 
           {/* Ethereal Violet Center Ripple */}
           <motion.div
-            className="absolute top-1/3 left-1/4 w-[60vw] sm:w-[50vw] max-w-[360px] h-[60vw] sm:h-[50vw] max-h-[360px] rounded-full bg-gradient-to-r from-violet-400/35 via-indigo-300/30 to-teal-300/30 blur-3xl"
+            className="absolute top-1/3 left-1/4 w-[60vw] sm:w-[50vw] max-w-[360px] h-[60vw] sm:h-[50vw] max-h-[360px] rounded-full bg-gradient-to-r from-violet-400/30 via-indigo-300/25 to-teal-300/25 blur-xl [transform:translateZ(0)]"
             animate={{
-              x: [0, -25, 30, 0],
-              y: [0, 30, -25, 0],
-              scale: [0.95, 1.12, 0.95],
+              x: [0, -20, 25, 0],
+              y: [0, 25, -20, 0],
+              scale: [0.96, 1.08, 0.96],
             }}
             transition={{
               duration: 14,
@@ -113,28 +116,14 @@ export default function ShaderShowcase({
           />
         </div>
 
-        {/* Base WebGL MeshGradient (High speed, dynamic distortion & swirl) */}
+        {/* Base WebGL MeshGradient (Optimized, vibrant, single high-speed fluid canvas) */}
         <MeshGradient
-          className="absolute inset-0 w-full h-full mix-blend-multiply opacity-80"
+          className="absolute inset-0 w-full h-full mix-blend-multiply opacity-80 [transform:translateZ(0)]"
           colors={meshColors}
-          speed={1.2}
-          distortion={1.3}
-          swirl={0.8}
-          backgroundColor={isWhiteTheme ? "#ffffff" : "#000000"}
-        />
-
-        {/* Secondary Wireframe MeshGradient (Active undulating 3D lines) */}
-        <MeshGradient
-          className={cn(
-            "absolute inset-0 w-full h-full",
-            isWhiteTheme ? "opacity-30 mix-blend-multiply" : "opacity-60"
-          )}
-          colors={wireframeColors}
-          speed={0.9}
+          speed={1.0}
           distortion={1.1}
-          swirl={0.6}
-          wireframe="true"
-          backgroundColor="transparent"
+          swirl={0.7}
+          backgroundColor={isWhiteTheme ? "#ffffff" : "#000000"}
         />
 
         {/* Subtle, breathable central vignette so text stays razor sharp */}

@@ -63,6 +63,7 @@ export function PaintingCard({
               alt={painting.title}
               className="w-full h-full object-contain transition-all duration-500 ease-out group-hover:scale-105 drop-shadow-sm"
               loading="lazy"
+              decoding="async"
             />
           </div>
         </Lens>
