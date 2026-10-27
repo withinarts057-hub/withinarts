@@ -30,14 +30,16 @@ export function PaintingCard({
     window.open(`https://wa.me/${whatsappNumber || '923264784663'}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const getBadgeStyle = (badge) => {
+  const getBadgeStyle = (badge, isCustom) => {
+    if (isCustom || badge?.toLowerCase().includes('custom')) {
+      return 'bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold shadow-md shadow-pink-500/20';
+    }
     switch (badge?.toLowerCase()) {
-      case 'limited edition':
-        return 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold';
+      case 'best seller':
       case 'hot item':
         return 'bg-gradient-to-r from-rose-500 to-red-600 text-white font-bold animate-pulse';
-      case 'masterpiece':
-        return 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold';
+      case 'original piece':
+        return 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold';
       default:
         return 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold';
     }
@@ -70,16 +72,24 @@ export function PaintingCard({
 
         {/* Top Badges: Limited Edition & In Stock directly on home page */}
         <div className="absolute top-3 inset-x-3 flex items-center justify-between z-30 pointer-events-auto">
-          {/* Limited Edition badge */}
-          <span className={`px-2.5 py-1 rounded-full text-[11px] shadow-md flex items-center gap-1.5 ${getBadgeStyle(painting.badge || 'Limited Edition')}`}>
-            {painting.badge?.toLowerCase().includes('hot') ? (
-              <Flame className="w-3 h-3 fill-current" />
-            ) : painting.badge?.toLowerCase().includes('master') ? (
-              <Award className="w-3 h-3" />
+          {/* Badge: Customizable vs Original */}
+          <span className={`px-2.5 py-1 rounded-full text-[11px] shadow-md flex items-center gap-1.5 ${getBadgeStyle(painting.badge, painting.isCustomizable)}`}>
+            {painting.isCustomizable ? (
+              <>
+                <Sparkles className="w-3 h-3 text-pink-200" />
+                <span>Customizable</span>
+              </>
+            ) : painting.badge?.toLowerCase().includes('hot') ? (
+              <>
+                <Flame className="w-3 h-3 fill-current" />
+                <span>{painting.badge}</span>
+              </>
             ) : (
-              <Sparkles className="w-3 h-3" />
+              <>
+                <Award className="w-3 h-3" />
+                <span>{painting.badge || "Original Piece"}</span>
+              </>
             )}
-            <span>{painting.badge || "Limited Edition"}</span>
           </span>
 
           {/* In Stock Badge */}

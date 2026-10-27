@@ -12,7 +12,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
       stepNumber: "01",
       label: "Studio & Origins",
       title: "Faisalabad Studio & Heritage",
-      description: "Based in D-Ground, Faisalabad, our flagship atelier creates 100% handmade oil paintings. Every canvas is meticulously crafted by resident master artists with authentic passion.",
+      description: "Based in D-Ground, Faisalabad, our flagship atelier creates 100% handmade acrylic paintings. Every wood slice and canvas is meticulously crafted by resident master artists with authentic passion.",
       keyword: "Faisalabad Studio",
       image: "/images/faisalabad_art_studio.jpg",
       color: "sky"
@@ -32,7 +32,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
       stepNumber: "03",
       label: "Handmade Brushwork",
       title: "3D Palette Knife Impasto & Gold Foil",
-      description: "Over pure stretched linen, our artists sculpt oil colors with heavy palette knife impasto and gild genuine 24K gold leaf, creating radiant depth and brilliant light reflection.",
+      description: "Over seasoned natural wood slices, our artists sculpt acrylic colors with heavy palette knife impasto and gild genuine 24K gold leaf, creating radiant depth and brilliant light reflection.",
       keyword: "Live Palette Knife Craft",
       image: "/images/brush_painting_action.jpg",
       color: "rose"
@@ -104,7 +104,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
                 <span>[Faisalabad Studio]</span>
                 <Eye className="w-3 h-3 text-sky-600" />
               </LinkPreview>{' '}
-              in Faisalabad. We produce and curate 100% original hand-painted oil canvases, where every stroke is applied by our seasoned resident master artists.
+              in Faisalabad. We produce and curate 100% original hand-painted acrylic artworks, where every stroke is applied by our seasoned resident master artists.
             </p>
 
             {/* Embedded Mobile Visual (Shown on mobile, hidden on desktop where sticky preview is present) */}
@@ -198,7 +198,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
                 <span>[Live Palette Knife Craft]</span>
                 <Paintbrush className="w-3 h-3 text-rose-600" />
               </LinkPreview>{' '}
-              to apply rich 3D oil textures. Genuine 24K gold foil is meticulously inlaid into calligraphic script to radiate brilliantly under room lighting.
+              to apply rich 3D acrylic textures. Genuine 24K gold foil is meticulously inlaid into calligraphic script to radiate brilliantly under room lighting.
             </p>
 
             {/* Embedded Mobile Visual */}
@@ -212,7 +212,7 @@ export function OurStorySection({ storySteps, studioInfo }) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
                 <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/20 font-bold text-[11px]">
-                  Step 03 • Oil & 24K Gold Foil
+                  Step 03 • Acrylic & 24K Gold Foil
                 </span>
                 <span className="text-[11px] text-slate-200">Heavy Impasto Technique</span>
               </div>

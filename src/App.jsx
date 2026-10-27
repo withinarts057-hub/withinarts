@@ -238,7 +238,7 @@ export default function App() {
       } else if (path === '/reviews' || hash === '#reviews') {
         setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }), 100);
       } else if (path === '/' && !hash) {
-        document.title = "Withinarts | Handcrafted Oil Paintings & Fine Art Studio";
+        document.title = "Withinarts | Handcrafted Acrylic Paintings & Fine Art Studio";
       }
     };
 
@@ -270,7 +270,7 @@ export default function App() {
     setSelectedPainting(null);
     const base = getBasePath();
     window.history.pushState({ type: 'home' }, "Withinarts", base + '/');
-    document.title = "Withinarts | Handcrafted Oil Paintings & Fine Art Studio";
+    document.title = "Withinarts | Handcrafted Acrylic Paintings & Fine Art Studio";
   };
 
   const handleOpenCart = () => {
@@ -296,7 +296,7 @@ export default function App() {
     const base = getBasePath();
     window.history.pushState({ type: 'home' }, "Withinarts", base + '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.title = "Withinarts | Handcrafted Oil Paintings & Fine Art Studio";
+    document.title = "Withinarts | Handcrafted Acrylic Paintings & Fine Art Studio";
   };
 
   const scrollToGallery = () => {
@@ -408,6 +408,11 @@ export default function App() {
       ...painting,
       id: painting.id || `art-${Date.now()}`,
       title: painting.title || 'Untitled Artwork',
+      isCustomizable: Boolean(
+        painting.isCustomizable ||
+        painting.id === 'wood-slice-3' ||
+        painting.id === 'wood-slice-5'
+      ),
       pricePKR: typeof painting.pricePKR === 'string'
         ? Number(painting.pricePKR.replace(/[^0-9]/g, '')) || 0
         : Number(painting.pricePKR) || 0,
@@ -598,13 +603,13 @@ export default function App() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 border border-sky-300 text-sky-800 text-xs font-bold mb-3 shadow-sm">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Original Oil & Gold Leaf Canvases</span>
+                <span>Original Acrylic & Hand-Painted Bark Slices</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-cinzel font-bold text-slate-900 mb-2">
                 Curated Art Collection
               </h2>
               <p className="text-slate-600 text-sm max-w-xl">
-                Explore our collection of authentic handmade oil paintings on seasoned solid rosewood, crafted with genuine 3D palette knife impasto textures.
+                Explore our collection of authentic handmade acrylic paintings on seasoned natural tree bark slices, crafted with genuine 3D palette knife impasto textures.
               </p>
             </div>
 

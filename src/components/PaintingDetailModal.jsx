@@ -146,7 +146,7 @@ export function PaintingDetailModal({
 
             <div className="text-xs text-slate-500 pl-2">
               <span className="block text-slate-900 font-bold">Studio Authentication</span>
-              <span>100% Original Oil on Canvas • Stretched</span>
+              <span>100% Original Acrylic on Wood Slice</span>
             </div>
           </div>
         </div>

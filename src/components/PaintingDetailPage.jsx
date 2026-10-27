@@ -196,7 +196,7 @@ export function PaintingDetailPage({
                 <ZoomIn className="w-3.5 h-3.5 text-sky-400 shrink-0" />
                 {activeView === 'closeup' ? (
                   <>
-                    <span className="hidden sm:inline">Move cursor over artwork to zoom into fine oil brushstrokes</span>
+                    <span className="hidden sm:inline">Move cursor over artwork to zoom into fine acrylic brushstrokes</span>
                     <span className="sm:hidden">Touch & drag across artwork to inspect texture</span>
                   </>
                 ) : (
@@ -260,8 +260,20 @@ export function PaintingDetailPage({
           </h1>
 
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            {painting.description || "100% authentic handmade oil painting crafted by master artists in Faisalabad, Pakistan."}
+            {painting.description || "100% authentic handmade acrylic painting crafted by master artists in Faisalabad, Pakistan."}
           </p>
+
+          {/* Customizable artwork special badge banner */}
+          {painting.isCustomizable && (
+            <div className="mt-4 p-3.5 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-sky-50 border border-purple-200 text-xs text-purple-950 font-medium flex flex-col sm:flex-row items-center justify-center gap-2 shadow-xs">
+              <span className="px-2.5 py-0.5 rounded-full bg-purple-600 text-white font-bold text-[11px] shrink-0">
+                ✍️ Customizable
+              </span>
+              <span>
+                Aap is painting par apna <strong>Family Name, Couple Names, ya Special Date</strong> hand-paint karwa sakte hain! (Custom orders require 50% advance deposit).
+              </span>
+            </div>
+          )}
         </section>
 
         {/* 3. Specifications and Craftsmanship */}
@@ -311,10 +323,15 @@ export function PaintingDetailPage({
                   Rs. {(Number(painting.pricePKR) || 0).toLocaleString()}
                 </p>
               </div>
-              <p className="text-xs text-emerald-700 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Free Safe Shipping Across Pakistan
-              </p>
+              <div className="space-y-1 pt-1 text-[11px] text-slate-700">
+                <p className="flex items-center gap-1 text-emerald-800 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Faisalabad: Free Delivery (COD & Advance) • 48 Hours</span>
+                </p>
+                <p className="text-slate-500 text-[10px] pl-4.5">
+                  Other Cities: Free on Advance (COD +Rs. 250) • 4–7 Days
+                </p>
+              </div>
             </div>
           </div>
 
@@ -324,7 +341,7 @@ export function PaintingDetailPage({
               <Palette className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
               <div>
                 <strong className="block text-slate-900">Medium & Texture:</strong>
-                <span>{painting.medium || "100% Oil on Linen with Palette Knife Heavy 3D Impasto"}</span>
+                <span>{painting.medium || "100% Heavy Impasto Acrylic on Natural Bark Wood Slice"}</span>
               </div>
             </div>
 
@@ -380,7 +397,7 @@ export function PaintingDetailPage({
             <span>← Return to Gallery Showcase</span>
           </button>
           <p className="text-xs text-slate-500 mt-2 font-medium">
-            Click to explore our full collection of handmade oil paintings and heritage stories
+            Click to explore our full collection of handmade acrylic paintings and heritage stories
           </p>
         </section>
 

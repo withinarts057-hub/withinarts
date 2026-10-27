@@ -168,7 +168,7 @@ export function StudioManagerPage({
     category: 'Islamic Art',
     wallImage: '/images/madina_wall.jpg',
     closeupImage: '/images/madina.png',
-    description: '100% original hand-painted oil artwork on genuine tree bark wood slice. Includes transparent display stand and hanging jute cord.',
+    description: '100% original hand-painted acrylic artwork on genuine tree bark wood slice. Includes transparent display stand and hanging jute cord.',
     inStock: true
   });
 
@@ -227,7 +227,7 @@ export function StudioManagerPage({
       category: 'Islamic Art',
       wallImage: '/images/madina_wall.jpg',
       closeupImage: '/images/madina.png',
-      description: '100% original hand-painted oil artwork on genuine tree bark wood slice. Includes transparent display stand and hanging jute cord.',
+      description: '100% original hand-painted acrylic artwork on genuine tree bark wood slice. Includes transparent display stand and hanging jute cord.',
       inStock: true
     });
     showToast("New painting saved to gallery!");

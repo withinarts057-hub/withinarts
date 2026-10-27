@@ -26,7 +26,7 @@ export function Footer({ studioInfo, onOpenManager }) {
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              We are master painters from Faisalabad, Pakistan. Handcrafting bespoke oil paintings on seasoned solid Sheesham stretcher frames, packed in signature eco-friendly rustic jute cloth.
+              We are master painters from Faisalabad, Pakistan. Handcrafting bespoke acrylic paintings on seasoned natural bark wood slices, packed in signature eco-friendly rustic jute cloth.
             </p>
 
             <div className="flex items-center gap-2 text-xs text-slate-300">

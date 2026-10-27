@@ -286,7 +286,7 @@ export function StudioManagerModal({
                         type="text"
                         value={newPainting.medium}
                         onChange={(e) => setNewPainting({ ...newPainting, medium: e.target.value })}
-                        placeholder="e.g. Heavy Impasto Oil & 24K Real Gold Leaf"
+                        placeholder="e.g. Heavy Impasto Acrylic & 24K Real Gold Leaf"
                         className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 focus:border-sky-500 outline-none"
                       />
                     </div>

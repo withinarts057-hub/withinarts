@@ -33,7 +33,7 @@ export function ReviewsSection({ reviewCards }) {
       rating: 5,
       artPurchased: "Ayat-ul-Kursi Emerald",
       description:
-        "“Being from Faisalabad myself, I was so proud to see such world-class oil paintings coming from our home city. Visited their D-Ground studio and saw the hand-carving and painting in person!”"
+        "“Being from Faisalabad myself, I was so proud to see such world-class acrylic paintings coming from our home city. Visited their D-Ground studio and saw the hand-carving and painting in person!”"
     },
     {
       title: "Zainab Al-Maktoum",
@@ -41,7 +41,7 @@ export function ReviewsSection({ reviewCards }) {
       rating: 5,
       artPurchased: "Bismillah Gold & Lapiz",
       description:
-        "“Delivered via DHL all the way from Faisalabad to Dubai in impeccable condition. The jute packaging preserved the fragile oil paint layers completely intact. Truly museum grade craftsmanship.”"
+        "“Delivered via DHL all the way from Faisalabad to Dubai in impeccable condition. The jute packaging preserved the fragile acrylic paint layers completely intact. Truly museum grade craftsmanship.”"
     }
   ];
 
@@ -154,7 +154,7 @@ export function ReviewsSection({ reviewCards }) {
           </h2>
 
           <p className="text-slate-600 text-xs sm:text-sm max-w-2xl leading-relaxed">
-            Read authentic impressions from collectors who acquired original oil pieces from our Faisalabad atelier.
+            Read authentic impressions from collectors who acquired original acrylic pieces from our Faisalabad atelier.
           </p>
         </div>
 
