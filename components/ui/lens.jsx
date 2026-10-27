@@ -28,15 +28,43 @@ export const Lens = ({
     setMousePosition({ x, y });
   };
 
+  const handleTouchMove = (e) => {
+    if (!e.touches || e.touches.length === 0) return;
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    setMousePosition({ x, y });
+    setIsHovering(true);
+  };
+
+  const handleTouchStart = (e) => {
+    if (!e.touches || e.touches.length === 0) return;
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    setMousePosition({ x, y });
+    setIsHovering(true);
+  };
+
+  const handleTouchEnd = () => {
+    setIsHovering(false);
+  };
+
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden rounded-lg z-20"
+      className="relative overflow-hidden rounded-lg z-20 touch-none"
       onMouseEnter={() => {
         setIsHovering(true);
       }}
       onMouseLeave={() => setIsHovering(false)}
       onMouseMove={handleMouseMove}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
     >
       {children}
 

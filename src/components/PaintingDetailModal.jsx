@@ -120,7 +120,8 @@ export function PaintingDetailModal({
             <div className="absolute bottom-3 left-3 pointer-events-none">
               <span className="px-2.5 py-1 rounded-md bg-white/95 backdrop-blur-md border border-slate-200 text-[11px] text-slate-800 font-medium flex items-center gap-1.5 shadow-md">
                 <ZoomIn className="w-3.5 h-3.5 text-sky-600" />
-                Hover mouse cursor to inspect brushwork texture
+                <span className="hidden sm:inline">Hover mouse cursor to inspect brushwork texture</span>
+                <span className="sm:hidden">Touch & drag to inspect brushwork texture</span>
               </span>
             </div>
           </div>

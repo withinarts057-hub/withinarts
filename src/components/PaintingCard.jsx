@@ -88,10 +88,10 @@ export function PaintingCard({
           </span>
         </div>
 
-        {/* Subtle Lens / Wall Toggle in Bottom-Right */}
+        {/* Subtle Lens / Wall Toggle in Bottom-Right — Only on Laptop/Desktop, hidden on Phone */}
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute bottom-2 right-2 flex items-center gap-1 p-0.5 rounded-lg bg-black/50 backdrop-blur-md text-[10px] text-white z-20"
+          className="hidden sm:flex absolute bottom-2 right-2 items-center gap-1 p-0.5 rounded-lg bg-black/50 backdrop-blur-md text-[10px] text-white z-20"
         >
           <button
             onClick={() => setViewMode('wall')}
